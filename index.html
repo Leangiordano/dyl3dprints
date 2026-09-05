@@ -4,19 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DyL 3D Prints • Impresión 3D</title>
+    <script>
+      tailwind = { config: { darkMode: 'class' } };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="icon" href="logo.jpg">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
         :root {
-            --primary: #0F172A;
+            --bg: #eef3f8;
+            --bg-elev: #ffffff;
+            --bg-muted: #e2eaf2;
+            --text: #0f172a;
+            --text-soft: #475569;
+            --text-faint: #64748b;
+            --line: #d5e0ea;
+            --nav: rgba(238, 243, 248, 0.86);
+            --accent: #0d9488;
+            --accent-2: #0284c7;
+            --shadow: 0 18px 40px -18px rgb(15 23 42 / 0.18);
         }
-        
+
+        html.dark {
+            --bg: #070b14;
+            --bg-elev: #101826;
+            --bg-muted: #162033;
+            --text: #f1f5f9;
+            --text-soft: #94a3b8;
+            --text-faint: #64748b;
+            --line: #243044;
+            --nav: rgba(7, 11, 20, 0.82);
+            --accent: #2dd4bf;
+            --accent-2: #38bdf8;
+            --shadow: 0 22px 50px -20px rgb(0 0 0 / 0.55);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
         body {
-            font-family: 'Inter', system_ui, sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: background .25s ease, color .25s ease;
+            min-height: 100vh;
         }
-        
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                radial-gradient(900px 500px at 12% -10%, rgba(13,148,136,.22), transparent 55%),
+                radial-gradient(800px 480px at 110% 8%, rgba(2,132,199,.18), transparent 50%),
+                radial-gradient(700px 420px at 50% 120%, rgba(13,148,136,.12), transparent 55%),
+                linear-gradient(180deg, var(--bg), var(--bg));
+        }
+
+        html.dark body::before {
+            background:
+                radial-gradient(900px 520px at 8% -8%, rgba(45,212,191,.16), transparent 55%),
+                radial-gradient(820px 500px at 108% 0%, rgba(56,189,248,.14), transparent 52%),
+                radial-gradient(640px 400px at 50% 115%, rgba(45,212,191,.08), transparent 55%),
+                linear-gradient(180deg, #070b14, #0b1220);
+        }
+
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background-image:
+                linear-gradient(to right, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px),
+                linear-gradient(to bottom, color-mix(in srgb, var(--text) 6%, transparent) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+            opacity: .45;
+        }
+
         .logo-font {
             font-family: 'Space Grotesk', 'Inter', sans-serif;
             font-weight: 600;
@@ -30,77 +99,97 @@
             letter-spacing: -0.025em;
         }
 
-        .nav-link {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        nav.site-nav, #mobile-menu, .card-surface, footer.site-footer {
+            background: var(--nav);
+            border-color: var(--line);
+            backdrop-filter: blur(16px);
         }
-        
-        .nav-link:hover {
-            color: #0EA5E9;
-        }
+
+        .card-surface { background: var(--bg-elev); }
+
+        a.nav-link { color: var(--text-soft); transition: color .2s ease; }
+        a.nav-link:hover { color: var(--accent); }
 
         .card {
-            transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), 
-                       box-shadow 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            background: var(--bg-elev);
+            border: 1px solid var(--line);
+            transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+            box-shadow: var(--shadow);
         }
-        
         .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
         }
 
-        .smooth-scroll {
-            scroll-behavior: smooth;
+        .muted { color: var(--text-soft); }
+        .faint { color: var(--text-faint); }
+        .line { border-color: var(--line); }
+
+        .btn-primary {
+            background: #0f172a;
+            color: #fff;
+        }
+        html.dark .btn-primary {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+        .btn-ghost {
+            border: 1px solid var(--line);
+            color: var(--text);
+            background: color-mix(in srgb, var(--bg-elev) 70%, transparent);
+        }
+        .btn-ghost:hover { background: var(--bg-muted); }
+
+        .icon-btn {
+            color: var(--text-soft);
+        }
+        .icon-btn:hover {
+            color: var(--text);
+            background: var(--bg-muted);
         }
 
-        .modern-shadow {
-            box-shadow: 0 10px 15px -3px rgb(15 23 42 / 0.1), 
-                       0 4px 6px -4px rgb(15 23 42 / 0.1);
+        .chip {
+            background: var(--bg-muted);
+            color: var(--text-soft);
         }
 
-        .accent {
-            color: #0EA5E9;
+        .placeholder {
+            background: var(--bg-muted);
+            color: color-mix(in srgb, var(--text-faint) 70%, transparent);
         }
 
-        .dark .accent {
-            color: #38BDF8;
+        .logo-btn img {
+            height: 52px;
+            width: 52px;
+            object-fit: cover;
+            border-radius: 14px;
+            box-shadow: 0 8px 20px -10px rgb(15 23 42 / .45);
         }
     </style>
 </head>
-<body class="bg-white text-slate-900 smooth-scroll">
-    <!-- Navbar -->
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+<body>
+    <div class="grid-overlay"></div>
+
+    <nav class="site-nav sticky top-0 z-50 border-b">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center h-20">
-                <!-- Logo -->
-                <div class="flex items-center gap-x-3">
-                    <div class="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center">
-                        <i class="fa-solid fa-print text-white text-3xl"></i>
-                    </div>
-                    <div>
-                        <span class="logo-font text-3xl font-semibold tracking-tighter">DyL</span>
-                        <span class="logo-font text-3xl font-semibold tracking-tighter text-slate-400">3D</span>
-                    </div>
-                </div>
+                <a href="#inicio" class="logo-btn inline-flex items-center" aria-label="DyL 3D Prints — inicio">
+                    <img src="logo.jpg" alt="DyL 3D Prints">
+                </a>
 
-                <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
-                    <a href="#inicio" class="nav-link text-slate-700 hover:text-slate-900">Inicio</a>
-                    <a href="#catalogo" class="nav-link text-slate-700 hover:text-slate-900">Catálogo</a>
-                    <a href="#servicio" class="nav-link text-slate-700 hover:text-slate-900">Servicio</a>
-                    <a href="#galeria" class="nav-link text-slate-700 hover:text-slate-900">Galería</a>
-                    <a href="#contacto" class="nav-link text-slate-700 hover:text-slate-900">Contacto</a>
+                    <a href="#inicio" class="nav-link">Inicio</a>
+                    <a href="#catalogo" class="nav-link">Catálogo</a>
+                    <a href="#servicio" class="nav-link">Servicio</a>
+                    <a href="#galeria" class="nav-link">Galería</a>
+                    <a href="#contacto" class="nav-link">Contacto</a>
                 </div>
 
-                <div class="flex items-center gap-x-4">
-                    <!-- Dark Mode Toggle -->
-                    <button onclick="toggleDarkMode()" 
-                            class="w-10 h-10 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-2xl transition-colors">
+                <div class="flex items-center gap-x-3">
+                    <button type="button" onclick="toggleDarkMode()" class="icon-btn w-10 h-10 flex items-center justify-center rounded-2xl transition-colors" aria-label="Cambiar tema">
                         <i class="fa-solid fa-moon text-lg" id="theme-icon"></i>
                     </button>
-
-                    <!-- Mobile Menu Button -->
-                    <button class="md:hidden w-10 h-10 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-2xl"
-                            onclick="toggleMobileMenu()">
+                    <button type="button" class="md:hidden icon-btn w-10 h-10 flex items-center justify-center rounded-2xl" onclick="toggleMobileMenu()" aria-label="Menú">
                         <i class="fa-solid fa-bars text-xl"></i>
                     </button>
                 </div>
@@ -108,92 +197,83 @@
         </div>
     </nav>
 
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200">
-        <div class="px-6 py-4 flex flex-col gap-y-3 text-sm font-medium">
-            <a href="#inicio" class="py-2 text-slate-700" onclick="toggleMobileMenu()">Inicio</a>
-            <a href="#catalogo" class="py-2 text-slate-700" onclick="toggleMobileMenu()">Catálogo</a>
-            <a href="#servicio" class="py-2 text-slate-700" onclick="toggleMobileMenu()">Servicio</a>
-            <a href="#galeria" class="py-2 text-slate-700" onclick="toggleMobileMenu()">Galería</a>
-            <a href="#contacto" class="py-2 text-slate-700" onclick="toggleMobileMenu()">Contacto</a>
+    <div id="mobile-menu" class="hidden md:hidden border-b">
+        <div class="px-6 py-4 flex flex-col gap-y-1 text-sm font-medium">
+            <a href="#inicio" class="nav-link py-2" onclick="toggleMobileMenu()">Inicio</a>
+            <a href="#catalogo" class="nav-link py-2" onclick="toggleMobileMenu()">Catálogo</a>
+            <a href="#servicio" class="nav-link py-2" onclick="toggleMobileMenu()">Servicio</a>
+            <a href="#galeria" class="nav-link py-2" onclick="toggleMobileMenu()">Galería</a>
+            <a href="#contacto" class="nav-link py-2" onclick="toggleMobileMenu()">Contacto</a>
         </div>
     </div>
 
-    <!-- Hero / Inicio -->
     <section id="inicio" class="max-w-7xl mx-auto px-6 pt-16 pb-20">
-        <div class="max-w-3xl">
-            <div class="inline-flex items-center gap-x-2 bg-slate-100 text-slate-700 text-sm font-medium px-4 h-9 rounded-3xl mb-6">
+        <div class="max-w-3xl mx-auto text-center flex flex-col items-center">
+            <div class="chip inline-flex items-center gap-x-2 text-sm font-medium px-4 h-9 rounded-3xl mb-6">
                 <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
                 Impresiones 3D de alta calidad en Buenos Aires
             </div>
-            
-            <h1 class="text-6xl md:text-7xl font-semibold tracking-tighter leading-none mb-6">
+
+            <h1 class="logo-font text-5xl sm:text-6xl md:text-7xl tracking-tighter leading-[0.95] mb-6">
                 Impresión 3D<br>hecha simple.
             </h1>
-            
-            <p class="text-xl text-slate-600 max-w-md mb-10">
+
+            <p class="text-lg md:text-xl muted max-w-xl mb-10">
                 Diseñamos y fabricamos piezas personalizadas con precisión y calidad premium.
             </p>
 
-            <div class="flex flex-col sm:flex-row gap-4">
-                <a href="#catalogo" 
-                   class="inline-flex items-center justify-center gap-x-2 bg-slate-900 hover:bg-black transition-colors text-white font-semibold px-8 h-14 rounded-3xl text-base">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center w-full sm:w-auto">
+                <a href="#catalogo" class="btn-primary inline-flex items-center justify-center font-semibold px-8 h-14 rounded-3xl text-base hover:opacity-90 transition">
                     Ver catálogo
                 </a>
-                <a href="#contacto" 
-                   class="inline-flex items-center justify-center gap-x-2 border border-slate-300 hover:bg-slate-50 transition-colors font-semibold px-8 h-14 rounded-3xl text-base">
+                <a href="#contacto" class="btn-ghost inline-flex items-center justify-center font-semibold px-8 h-14 rounded-3xl text-base transition">
                     Contactar
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Catálogo -->
-    <section id="catalogo" class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-100">
+    <section id="catalogo" class="max-w-7xl mx-auto px-6 py-16 border-t line">
         <div class="flex items-end justify-between mb-10">
             <div>
                 <h2 class="section-header tracking-tighter">Catálogo</h2>
-                <p class="text-slate-600 mt-2">Algunos de nuestros productos más populares</p>
+                <p class="muted mt-2">Algunos de nuestros productos más populares</p>
             </div>
-            <a href="#contacto" class="hidden md:block text-sm font-semibold text-slate-900 hover:text-slate-600 flex items-center gap-x-2">
+            <a href="#contacto" class="hidden md:flex text-sm font-semibold items-center gap-x-2" style="color:var(--text)">
                 Ver todo <i class="fa-solid fa-arrow-right"></i>
             </a>
         </div>
 
-        <!-- Placeholder products -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Product 1 -->
-            <div class="card bg-white border border-slate-200 rounded-3xl p-6">
-                <div class="aspect-video bg-slate-100 rounded-2xl mb-5 flex items-center justify-center">
-                    <i class="fa-solid fa-cube text-6xl text-slate-300"></i>
+            <div class="card rounded-3xl p-6">
+                <div class="aspect-video placeholder rounded-2xl mb-5 flex items-center justify-center">
+                    <i class="fa-solid fa-cube text-6xl"></i>
                 </div>
                 <h3 class="font-semibold text-xl">Organizadores modulares</h3>
-                <p class="text-slate-600 text-sm mt-1 mb-4">Personalizables en colores y tamaños</p>
+                <p class="muted text-sm mt-1 mb-4">Personalizables en colores y tamaños</p>
                 <div class="flex items-center justify-between">
                     <span class="font-semibold">Desde $8.500</span>
-                    <span class="text-xs px-3 py-1 bg-emerald-100 text-emerald-700 rounded-2xl font-medium">Popular</span>
+                    <span class="text-xs px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 rounded-2xl font-medium">Popular</span>
                 </div>
             </div>
 
-            <!-- Product 2 -->
-            <div class="card bg-white border border-slate-200 rounded-3xl p-6">
-                <div class="aspect-video bg-slate-100 rounded-2xl mb-5 flex items-center justify-center">
-                    <i class="fa-solid fa-cube text-6xl text-slate-300"></i>
+            <div class="card rounded-3xl p-6">
+                <div class="aspect-video placeholder rounded-2xl mb-5 flex items-center justify-center">
+                    <i class="fa-solid fa-mobile-screen text-6xl"></i>
                 </div>
                 <h3 class="font-semibold text-xl">Soportes para celular</h3>
-                <p class="text-slate-600 text-sm mt-1 mb-4">Diseños ergonómicos y resistentes</p>
+                <p class="muted text-sm mt-1 mb-4">Diseños ergonómicos y resistentes</p>
                 <div class="flex items-center justify-between">
                     <span class="font-semibold">Desde $4.200</span>
                 </div>
             </div>
 
-            <!-- Product 3 -->
-            <div class="card bg-white border border-slate-200 rounded-3xl p-6">
-                <div class="aspect-video bg-slate-100 rounded-2xl mb-5 flex items-center justify-center">
-                    <i class="fa-solid fa-cube text-6xl text-slate-300"></i>
+            <div class="card rounded-3xl p-6">
+                <div class="aspect-video placeholder rounded-2xl mb-5 flex items-center justify-center">
+                    <i class="fa-solid fa-gears text-6xl"></i>
                 </div>
                 <h3 class="font-semibold text-xl">Piezas funcionales</h3>
-                <p class="text-slate-600 text-sm mt-1 mb-4">Engranajes, soportes y repuestos a medida</p>
+                <p class="muted text-sm mt-1 mb-4">Engranajes, soportes y repuestos a medida</p>
                 <div class="flex items-center justify-between">
                     <span class="font-semibold">Consultar precio</span>
                 </div>
@@ -201,168 +281,129 @@
         </div>
 
         <div class="mt-8 text-center">
-            <p class="text-sm text-slate-500">¿No encontrás lo que buscás? <a href="#contacto" class="text-slate-900 font-medium hover:underline">Escribinos</a> y lo hacemos.</p>
+            <p class="text-sm faint">¿No encontrás lo que buscás? <a href="#contacto" class="font-medium hover:underline" style="color:var(--text)">Escribinos</a> y lo hacemos.</p>
         </div>
     </section>
 
-    <!-- Servicio de Impresión -->
-    <section id="servicio" class="max-w-7xl mx-auto px-6 py-16 bg-slate-50 rounded-3xl">
-        <div class="max-w-3xl mx-auto text-center">
-            <h2 class="section-header tracking-tighter mb-4">Servicio de impresión 3D</h2>
-            <p class="text-xl text-slate-600">
-                Convertimos tus ideas en piezas reales. Ya sea que tengas un diseño propio o necesites ayuda para crearlo.
-            </p>
-        </div>
+    <section id="servicio" class="max-w-7xl mx-auto px-6 py-16">
+        <div class="card rounded-3xl px-6 py-14">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="section-header tracking-tighter mb-4">Servicio de impresión 3D</h2>
+                <p class="text-xl muted">
+                    Convertimos tus ideas en piezas reales. Ya sea que tengas un diseño propio o necesites ayuda para crearlo.
+                </p>
+            </div>
 
-        <div class="grid md:grid-cols-3 gap-6 mt-12 max-w-5xl mx-auto">
-            <div class="bg-white p-8 rounded-3xl border border-slate-100">
-                <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mb-6">
-                    <i class="fa-solid fa-file-import text-2xl"></i>
+            <div class="grid md:grid-cols-3 gap-6 mt-12 max-w-5xl mx-auto">
+                <div class="rounded-3xl p-8 border line" style="background:var(--bg-muted)">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style="background:color-mix(in srgb, var(--accent) 18%, transparent); color:var(--accent)">
+                        <i class="fa-solid fa-file-import text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold text-xl mb-3">Traé tu diseño</h4>
+                    <p class="muted text-sm">Subí tu archivo STL u OBJ. Te cotizamos en menos de 24hs.</p>
                 </div>
-                <h4 class="font-semibold text-xl mb-3">Traé tu diseño</h4>
-                <p class="text-slate-600 text-sm">Subí tu archivo STL u OBJ. Te cotizamos en menos de 24hs.</p>
-            </div>
-            
-            <div class="bg-white p-8 rounded-3xl border border-slate-100">
-                <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mb-6">
-                    <i class="fa-solid fa-pencil-ruler text-2xl"></i>
+                <div class="rounded-3xl p-8 border line" style="background:var(--bg-muted)">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style="background:color-mix(in srgb, var(--accent) 18%, transparent); color:var(--accent)">
+                        <i class="fa-solid fa-pencil-ruler text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold text-xl mb-3">Diseño a medida</h4>
+                    <p class="muted text-sm">¿No tenés el archivo? Contanos qué necesitás y lo diseñamos para vos.</p>
                 </div>
-                <h4 class="font-semibold text-xl mb-3">Diseño a medida</h4>
-                <p class="text-slate-600 text-sm">¿No tenés el archivo? Contanos qué necesitás y lo diseñamos para vos.</p>
-            </div>
-            
-            <div class="bg-white p-8 rounded-3xl border border-slate-100">
-                <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mb-6">
-                    <i class="fa-solid fa-truck text-2xl"></i>
+                <div class="rounded-3xl p-8 border line" style="background:var(--bg-muted)">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-6" style="background:color-mix(in srgb, var(--accent) 18%, transparent); color:var(--accent)">
+                        <i class="fa-solid fa-truck text-2xl"></i>
+                    </div>
+                    <h4 class="font-semibold text-xl mb-3">Entrega rápida</h4>
+                    <p class="muted text-sm">Producción en 1-5 días según complejidad. Envíos a todo CABA y GBA.</p>
                 </div>
-                <h4 class="font-semibold text-xl mb-3">Entrega rápida</h4>
-                <p class="text-slate-600 text-sm">Producción en 1-5 días según complejidad. Envíos a todo CABA y GBA.</p>
             </div>
         </div>
     </section>
 
-    <!-- Galería -->
     <section id="galeria" class="max-w-7xl mx-auto px-6 py-16">
-        <div class="flex items-end justify-between mb-10">
-            <div>
-                <h2 class="section-header tracking-tighter">Galería</h2>
-                <p class="text-slate-600">Algunos trabajos que realizamos</p>
-            </div>
+        <div class="mb-10">
+            <h2 class="section-header tracking-tighter">Galería</h2>
+            <p class="muted">Algunos trabajos que realizamos</p>
         </div>
-
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="aspect-square bg-slate-100 rounded-3xl flex items-center justify-center">
-                <i class="fa-solid fa-image text-5xl text-slate-300"></i>
-            </div>
-            <div class="aspect-square bg-slate-100 rounded-3xl flex items-center justify-center">
-                <i class="fa-solid fa-image text-5xl text-slate-300"></i>
-            </div>
-            <div class="aspect-square bg-slate-100 rounded-3xl flex items-center justify-center">
-                <i class="fa-solid fa-image text-5xl text-slate-300"></i>
-            </div>
-            <div class="aspect-square bg-slate-100 rounded-3xl flex items-center justify-center">
-                <i class="fa-solid fa-image text-5xl text-slate-300"></i>
-            </div>
+            <div class="aspect-square placeholder rounded-3xl flex items-center justify-center"><i class="fa-solid fa-image text-5xl"></i></div>
+            <div class="aspect-square placeholder rounded-3xl flex items-center justify-center"><i class="fa-solid fa-image text-5xl"></i></div>
+            <div class="aspect-square placeholder rounded-3xl flex items-center justify-center"><i class="fa-solid fa-image text-5xl"></i></div>
+            <div class="aspect-square placeholder rounded-3xl flex items-center justify-center"><i class="fa-solid fa-image text-5xl"></i></div>
         </div>
-        
-        <p class="text-center text-sm text-slate-500 mt-6">Próximamente podrás ver más fotos de trabajos reales.</p>
+        <p class="text-center text-sm faint mt-6">Próximamente podrás ver más fotos de trabajos reales.</p>
     </section>
 
-    <!-- Contacto -->
-    <section id="contacto" class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-100">
+    <section id="contacto" class="max-w-7xl mx-auto px-6 py-16 border-t line">
         <div class="max-w-xl mx-auto text-center">
             <h2 class="section-header tracking-tighter mb-3">Hablemos</h2>
-            <p class="text-slate-600 mb-10">¿Tenés un proyecto en mente? Escribinos y lo hacemos realidad.</p>
+            <p class="muted mb-10">¿Tenés un proyecto en mente? Escribinos y lo hacemos realidad.</p>
 
-            <!-- Contact Buttons -->
             <div class="flex flex-col sm:flex-row gap-4 justify-center mb-10">
-                <!-- WhatsApp -->
-                <a href="https://wa.me/541153195024" target="_blank"
+                <a href="https://wa.me/541153195024" target="_blank" rel="noopener"
                    class="flex-1 flex items-center justify-center gap-x-3 bg-emerald-600 hover:bg-emerald-700 transition-colors text-white font-semibold h-16 rounded-3xl text-lg">
                     <i class="fa-brands fa-whatsapp text-3xl"></i>
                     <span>WhatsApp</span>
                 </a>
-
-                <!-- Instagram -->
-                <a href="https://www.instagram.com/dyl3dprints" target="_blank"
+                <a href="https://www.instagram.com/dyl3dprints" target="_blank" rel="noopener"
                    class="flex-1 flex items-center justify-center gap-x-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 transition-all text-white font-semibold h-16 rounded-3xl text-lg">
                     <i class="fa-brands fa-instagram text-3xl"></i>
                     <span>Instagram</span>
                 </a>
             </div>
 
-            <div class="text-sm text-slate-500">
-                También podés escribirnos a <span class="font-medium text-slate-700">hola@dyl3dprints.com</span>
+            <div class="text-sm faint">
+                También podés escribirnos a
+                <a class="font-medium hover:underline" style="color:var(--text)" href="mailto:dylimpresiones3d@gmail.com">dylimpresiones3d@gmail.com</a>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="border-t border-slate-100 py-8">
-        <div class="max-w-7xl mx-auto px-6 text-center text-sm text-slate-500">
+    <footer class="site-footer border-t py-8">
+        <div class="max-w-7xl mx-auto px-6 text-center text-sm faint">
             © 2026 DyL 3D Prints • Buenos Aires, Argentina
         </div>
     </footer>
 
     <script>
-        // Tailwind script
-        function initializeTailwind() {
-            document.documentElement.style.setProperty('--accent', '#0EA5E9');
-        }
-
-        // Dark mode
-        function toggleDarkMode() {
+        function applyTheme(theme) {
             const html = document.documentElement;
-            html.classList.toggle('dark');
-            
             const icon = document.getElementById('theme-icon');
-            
-            if (html.classList.contains('dark')) {
+            if (theme === 'dark') {
+                html.classList.add('dark');
                 icon.classList.remove('fa-moon');
                 icon.classList.add('fa-sun');
-                localStorage.setItem('theme', 'dark');
             } else {
+                html.classList.remove('dark');
                 icon.classList.remove('fa-sun');
                 icon.classList.add('fa-moon');
-                localStorage.setItem('theme', 'light');
             }
+            localStorage.setItem('theme', theme);
         }
 
-        // Load saved theme
+        function toggleDarkMode() {
+            const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            applyTheme(next);
+        }
+
         function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            const icon = document.getElementById('theme-icon');
-            
-            if (savedTheme === 'dark') {
-                document.documentElement.classList.add('dark');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark' || saved === 'light') {
+                applyTheme(saved);
+                return;
+            }
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                applyTheme('dark');
+            } else {
+                applyTheme('light');
             }
         }
 
-        // Mobile menu
         function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+            document.getElementById('mobile-menu').classList.toggle('hidden');
         }
 
-        // Initialize everything
-        function init() {
-            initializeTailwind();
-            loadTheme();
-            
-            // Close mobile menu when clicking a link
-            document.querySelectorAll('#mobile-menu a').forEach(link => {
-                link.addEventListener('click', () => {
-                    document.getElementById('mobile-menu').classList.add('hidden');
-                });
-            });
-
-            // Optional: Add subtle animation to hero
-            console.log('%c[DyL 3D Prints] Website initialized successfully', 'color:#64748b');
-        }
-
-        window.onload = init;
+        document.addEventListener('DOMContentLoaded', loadTheme);
     </script>
 </body>
 </html>
