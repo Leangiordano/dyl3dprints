@@ -570,10 +570,10 @@
                         <span class="font-semibold text-lg text-right" id="checkout-total">$0</span>
                     </div>
                     <p class="text-xs faint mt-4" id="pay-hint">Elegí un medio de pago para continuar.</p>
-                    <a id="pay-confirm" href="#" target="_blank" rel="noopener"
+                    <button type="button" id="pay-confirm" onclick="startCheckout()"
                        class="mt-4 flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm pointer-events-none opacity-50">
-                        Confirmar por WhatsApp
-                    </a>
+                        Confirmar
+                    </button>
                 </div>
             </div>
         </div>
@@ -652,6 +652,21 @@
                 ]
             },
             {
+                id: 'pika-stitch-crochet',
+                name: 'Pika Stitch Crochet',
+                price: 'Consultar',
+                priceNum: 0,
+                consult: true,
+                category: 'munecos',
+                badge: 'Muñecos',
+                badgeClass: 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300',
+                short: 'Figura coleccionable con textura tipo crochet: Pikachu en hoodie de Stitch, impresa en 3D.',
+                long: 'Pieza de colección con acabado texturado que evoca el punto crochet. Combina a Pikachu con la capucha de Stitch, pensada para vitrina o escritorio. Impresión 3D de detalle fino; consultá disponibilidad y valor.',
+                images: [
+                    'img/pika-stitch-crochet.jpg'
+                ]
+            },
+            {
                 id: 'organizadores',
                 name: 'Organizadores modulares',
                 price: 'Desde $8.500',
@@ -660,6 +675,7 @@
                 badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
                 short: 'Personalizables en colores y tamaños.',
                 long: 'Módulos para ordenar escritorio, cocina o taller. Se pueden combinar y pedir en distintos colores y medidas. Escribinos con la medida que necesitás y te armamos la cotización.',
+                category: 'hogar',
                 icon: 'fa-cube',
                 images: []
             },
@@ -672,6 +688,7 @@
                 badgeClass: '',
                 short: 'Diseños ergonómicos y resistentes.',
                 long: 'Soportes impresos en 3D, pensados para mesa o escritorio. Hay varios ángulos y estilos; si tenés un modelo de celular o un uso puntual (auto, cocina, streaming), lo adaptamos.',
+                category: 'hogar',
                 icon: 'fa-mobile-screen',
                 images: []
             }
@@ -775,10 +792,10 @@
                         ${thumb}
                         <div class="flex-1 min-w-0">
                             <div class="font-medium truncate">${p.name}</div>
-                            <div class="text-sm muted mt-0.5">${formatARS(p.priceNum)}</div>
+                            <div class="text-sm muted mt-0.5">${p.consult ? 'Consultar' : formatARS(p.priceNum)}</div>
                             <div class="mt-2" data-cart-controls="${p.id}">${qtyControl(p.id)}</div>
                         </div>
-                        <div class="text-sm font-semibold pt-1">${formatARS(p.priceNum * qtyOf(p.id))}</div>
+                        <div class="text-sm font-semibold pt-1">${p.consult ? 'Consultar' : formatARS(p.priceNum * qtyOf(p.id))}</div>
                     </div>`;
                 }).join('');
             }
@@ -789,7 +806,7 @@
         function checkoutLink() {
             const lines = PRODUCTS.filter(p => qtyOf(p.id) > 0);
             if (!lines.length) return 'https://wa.me/' + WA;
-            const list = lines.map(p => `• ${p.name} x${qtyOf(p.id)} — ${formatARS(p.priceNum * qtyOf(p.id))}`).join('\n');
+            const list = lines.map(p => `• ${p.name} x${qtyOf(p.id)} — ${p.consult ? 'Consultar' : formatARS(p.priceNum * qtyOf(p.id))}`).join('\n');
             const msg = `Hola DyL, quiero este pedido:\n\n${list}\n\nTotal: ${formatARS(cartTotal())}`;
             return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
         }
@@ -817,16 +834,14 @@
                 icon: 'fa-handshake',
                 title: 'Mercado Pago',
                 subtitle: 'Pago online, crédito, débito o dinero en cuenta.',
-                detail: () => PAY.mpLink
-                    ? `El cobro entra en ${PAY.mpName || 'Mercado Pago'}. Te abrimos el link de pago del comercio.`
-                    : `Todavía no está el link del comercio. Cuando lo carguemos, esta opción abre el checkout de Mercado Pago de la cuenta registrada.`
+                detail: () => `El cobro entra en ${PAY.mpName || 'Mercado Pago'}. El botón del resumen abre el checkout con el mismo total del carrito.`
             },
             {
                 id: 'tarjetas',
                 icon: 'fa-credit-card',
                 title: 'Tarjeta de crédito o débito',
                 subtitle: 'Visa, Mastercard y cabal a través de Mercado Pago.',
-                detail: () => `El cobro con tarjeta se hace por link de Mercado Pago. Confirmá y te lo enviamos por WhatsApp.`
+                detail: () => `Visa, Mastercard y débito en el checkout de ${PAY.mpName || 'Mercado Pago'}, con el total del pedido ya cargado.`
             },
             {
                 id: 'billeteras',
@@ -886,37 +901,71 @@
                     : formatARS(subtotal);
             }
             const lines = PRODUCTS.filter(p => qtyOf(p.id) > 0);
+            const methodLine = method
+                ? `<div class="flex justify-between text-sm py-1 mt-2 pt-2 border-t line"><span class="muted">Medio de pago</span><span class="font-medium text-right">${method.title}</span></div>`
+                : '';
             document.getElementById('checkout-summary').innerHTML = lines.length
-                ? lines.map(p => `<div class="flex justify-between text-sm py-1"><span class="muted">${p.name} ×${qtyOf(p.id)}</span><span>${formatARS(p.priceNum * qtyOf(p.id))}</span></div>`).join('')
+                ? lines.map(p => `<div class="flex justify-between text-sm py-1"><span class="muted">${p.name} ×${qtyOf(p.id)}</span><span>${p.consult ? 'Consultar' : formatARS(p.priceNum * qtyOf(p.id))}</span></div>`).join('')
                     + (transferSelected() ? `<div class="flex justify-between text-sm py-1"><span class="muted">Descuento transferencia 5%</span><span style="color:var(--accent)">− ${formatARS(subtotal - total)}</span></div>` : '')
+                    + methodLine
                 : '<p class="muted text-sm">El carrito está vacío.</p>';
+            window._checkoutMsg = '';
             if (!lines.length || !method) {
                 btn.classList.add('pointer-events-none', 'opacity-50');
                 hint.textContent = lines.length ? 'Elegí un medio de pago para continuar.' : 'Agregá productos al carrito para pagar.';
-                btn.href = '#';
+                hint.style.display = '';
+                btn.innerHTML = 'Confirmar';
                 return;
             }
             btn.classList.remove('pointer-events-none', 'opacity-50');
-            if (transferSelected()) {
-                hint.textContent = '';
-            } else if (selectedPay === 'mercadopago' && PAY.mpLink) {
-                hint.textContent = 'Vas a pagar en el Mercado Pago del comercio.';
-            } else {
-                hint.textContent = 'Te abrimos WhatsApp con el pedido y el medio elegido.';
-            }
-            const list = lines.map(p => `• ${p.name} x${qtyOf(p.id)} — ${formatARS(p.priceNum * qtyOf(p.id))}`).join('\n');
+            hint.textContent = '';
+            hint.style.display = 'none';
+            const list = lines.map(p => `• ${p.name} x${qtyOf(p.id)} — ${p.consult ? 'Consultar' : formatARS(p.priceNum * qtyOf(p.id))}`).join('\n');
             const extra = transferSelected()
                 ? `\nDescuento transferencia 5%: − ${formatARS(subtotal - total)}\nTotal: ${formatARS(total)}\nAlias: ${PAY.alias}`
                 : `\nTotal: ${formatARS(total)}`;
-            const msg = `Hola DyL, quiero pagar este pedido:\n\n${list}${extra}\nMedio de pago: ${method.title}`;
-            if ((selectedPay === 'mercadopago' || selectedPay === 'tarjetas') && PAY.mpLink) {
-                btn.href = PAY.mpLink;
+            window._checkoutMsg = `Hola DyL, quiero pagar este pedido:\n\n${list}${extra}\nMedio de pago: ${method.title}`;
+            if (selectedPay === 'mercadopago' || selectedPay === 'tarjetas') {
                 btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar con Mercado Pago';
             } else {
-                btn.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
                 btn.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Confirmar por WhatsApp';
             }
-            hint.style.display = hint.textContent ? '' : 'none';
+        }
+
+        async function startCheckout() {
+            if (!selectedPay || !cartCount()) return;
+            if (selectedPay === 'mercadopago' || selectedPay === 'tarjetas') {
+                const btn = document.getElementById('pay-confirm');
+                const prev = btn.innerHTML;
+                btn.innerHTML = 'Generando pago…';
+                btn.classList.add('pointer-events-none', 'opacity-50');
+                const items = PRODUCTS.filter(p => qtyOf(p.id) > 0).map(p => ({
+                    id: p.id,
+                    title: p.name,
+                    quantity: qtyOf(p.id),
+                    unit_price: p.priceNum
+                }));
+                try {
+                    const res = await fetch('/api/create-preference', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ items, total: payableTotal(), payer_method: selectedPay })
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok && data.init_point) {
+                        window.location.href = data.init_point;
+                        return;
+                    }
+                    throw new Error(data.error || 'no-preference');
+                } catch (e) {
+                    alert('Mercado Pago con el total del carrito necesita el Access Token del comercio (DyL 3D Prints). Hasta cargarlo, no se puede abrir un checkout con el monto cerrado.');
+                } finally {
+                    btn.innerHTML = prev;
+                    btn.classList.remove('pointer-events-none', 'opacity-50');
+                }
+                return;
+            }
+            window.open('https://wa.me/' + WA + '?text=' + encodeURIComponent(window._checkoutMsg || ''), '_blank');
         }
 
         function goCheckout() {
