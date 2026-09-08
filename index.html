@@ -99,13 +99,11 @@
             letter-spacing: -0.025em;
         }
 
-        nav.site-nav, #mobile-menu, .card-surface, footer.site-footer {
+        nav.site-nav, #mobile-menu, footer.site-footer {
             background: var(--nav);
             border-color: var(--line);
             backdrop-filter: blur(16px);
         }
-
-        .card-surface { background: var(--bg-elev); }
 
         a.nav-link { color: var(--text-soft); transition: color .2s ease; }
         a.nav-link:hover { color: var(--accent); }
@@ -125,14 +123,8 @@
         .faint { color: var(--text-faint); }
         .line { border-color: var(--line); }
 
-        .btn-primary {
-            background: #0f172a;
-            color: #fff;
-        }
-        html.dark .btn-primary {
-            background: #f8fafc;
-            color: #0f172a;
-        }
+        .btn-primary { background: #0f172a; color: #fff; }
+        html.dark .btn-primary { background: #f8fafc; color: #0f172a; }
         .btn-ghost {
             border: 1px solid var(--line);
             color: var(--text);
@@ -140,18 +132,10 @@
         }
         .btn-ghost:hover { background: var(--bg-muted); }
 
-        .icon-btn {
-            color: var(--text-soft);
-        }
-        .icon-btn:hover {
-            color: var(--text);
-            background: var(--bg-muted);
-        }
+        .icon-btn { color: var(--text-soft); }
+        .icon-btn:hover { color: var(--text); background: var(--bg-muted); }
 
-        .chip {
-            background: var(--bg-muted);
-            color: var(--text-soft);
-        }
+        .chip { background: var(--bg-muted); color: var(--text-soft); }
 
         .placeholder {
             background: var(--bg-muted);
@@ -166,19 +150,22 @@
             box-shadow: 0 8px 20px -10px rgb(15 23 42 / .45);
         }
 
-        .product-photo {
+        .product-photo, .gallery-photo, .pdp-main-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
 
-        .gallery-photo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+        .catalog-img-wrap {
+            cursor: zoom-in;
         }
+
+        .product-title-link {
+            color: inherit;
+            text-decoration: none;
+        }
+        .product-title-link:hover { color: var(--accent); }
 
         .thumb {
             width: 100%;
@@ -193,6 +180,55 @@
             border-color: var(--accent);
             transform: translateY(-1px);
         }
+
+        body.product-open .home-view { display: none; }
+        body.product-open .product-view { display: block; }
+        .product-view { display: none; }
+
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            z-index: 80;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(7, 11, 20, .88);
+            backdrop-filter: blur(10px);
+        }
+        #lightbox.open { display: flex; }
+
+        #lightbox img {
+            max-width: min(92vw, 980px);
+            max-height: 78vh;
+            object-fit: contain;
+            border-radius: 16px;
+            box-shadow: 0 24px 60px -20px rgb(0 0 0 / .6);
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .lb-btn {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            border: 0;
+            background: rgba(255,255,255,.12);
+            color: #fff;
+            cursor: pointer;
+        }
+        .lb-btn:hover { background: rgba(255,255,255,.22); }
+        .lb-close { top: 18px; right: 18px; }
+        .lb-prev { left: 16px; top: 50%; transform: translateY(-50%); }
+        .lb-next { right: 16px; top: 50%; transform: translateY(-50%); }
+        .lb-counter {
+            position: absolute;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #e2e8f0;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -201,16 +237,16 @@
     <nav class="site-nav sticky top-0 z-50 border-b">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center h-20">
-                <a href="#inicio" class="logo-btn inline-flex items-center" aria-label="DyL 3D Prints — inicio">
+                <a href="#inicio" class="logo-btn inline-flex items-center" aria-label="DyL 3D Prints — inicio" onclick="closeProduct(event)">
                     <img src="logo.jpg" alt="DyL 3D Prints">
                 </a>
 
                 <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
-                    <a href="#inicio" class="nav-link">Inicio</a>
-                    <a href="#catalogo" class="nav-link">Catálogo</a>
-                    <a href="#servicio" class="nav-link">Servicio</a>
-                    <a href="#galeria" class="nav-link">Galería</a>
-                    <a href="#contacto" class="nav-link">Contacto</a>
+                    <a href="#inicio" class="nav-link" onclick="closeProduct(event)">Inicio</a>
+                    <a href="#catalogo" class="nav-link" onclick="closeProduct(event)">Catálogo</a>
+                    <a href="#servicio" class="nav-link" onclick="closeProduct(event)">Servicio</a>
+                    <a href="#galeria" class="nav-link" onclick="closeProduct(event)">Galería</a>
+                    <a href="#contacto" class="nav-link" onclick="closeProduct(event)">Contacto</a>
                 </div>
 
                 <div class="flex items-center gap-x-3">
@@ -227,14 +263,15 @@
 
     <div id="mobile-menu" class="hidden md:hidden border-b">
         <div class="px-6 py-4 flex flex-col gap-y-1 text-sm font-medium">
-            <a href="#inicio" class="nav-link py-2" onclick="toggleMobileMenu()">Inicio</a>
-            <a href="#catalogo" class="nav-link py-2" onclick="toggleMobileMenu()">Catálogo</a>
-            <a href="#servicio" class="nav-link py-2" onclick="toggleMobileMenu()">Servicio</a>
-            <a href="#galeria" class="nav-link py-2" onclick="toggleMobileMenu()">Galería</a>
-            <a href="#contacto" class="nav-link py-2" onclick="toggleMobileMenu()">Contacto</a>
+            <a href="#inicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Inicio</a>
+            <a href="#catalogo" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Catálogo</a>
+            <a href="#servicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Servicio</a>
+            <a href="#galeria" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Galería</a>
+            <a href="#contacto" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Contacto</a>
         </div>
     </div>
 
+    <div class="home-view">
     <section id="inicio" class="max-w-7xl mx-auto px-6 pt-16 pb-20">
         <div class="max-w-3xl mx-auto text-center flex flex-col items-center">
             <div class="chip inline-flex items-center gap-x-2 text-sm font-medium px-4 h-9 rounded-3xl mb-6">
@@ -272,53 +309,7 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <article class="card rounded-3xl p-6">
-                <div class="aspect-video rounded-2xl mb-4 overflow-hidden bg-black/5">
-                    <img id="mama-main" class="product-photo" src="img/corazon-mama-1.jpg" alt="Corazón de Mamá — adorno 3D impreso">
-                </div>
-                <div class="grid grid-cols-4 gap-2 mb-5">
-                    <img class="thumb active" src="img/corazon-mama-1.jpg" alt="" onclick="swapMama(this)">
-                    <img class="thumb" src="img/corazon-mama-2.jpg" alt="" onclick="swapMama(this)">
-                    <img class="thumb" src="img/corazon-mama-3.jpg" alt="" onclick="swapMama(this)">
-                    <img class="thumb" src="img/corazon-mama-4.jpg" alt="" onclick="swapMama(this)">
-                </div>
-                <div class="flex items-start justify-between gap-3">
-                    <h3 class="font-semibold text-xl">Corazón de Mamá</h3>
-                    <span class="shrink-0 text-xs px-3 py-1 bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 rounded-2xl font-medium">Día de la Madre</span>
-                </div>
-                <p class="muted text-sm mt-2 mb-4">Un detalle para el escritorio o la mesita: corazón impreso en 3D con la palabra Mamá al centro. Ideal para regalar en su día, o cuando quieras decirlo sin tantas palabras.</p>
-                <div class="flex items-center justify-between gap-3">
-                    <span class="font-semibold">$10.500</span>
-                    <a href="https://wa.me/541153195024?text=Hola%20DyL%2C%20quiero%20consultar%20por%20el%20Coraz%C3%B3n%20de%20Mam%C3%A1%20(%2410.500)" target="_blank" rel="noopener" class="text-sm font-semibold inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 hover:underline">
-                        <i class="fa-brands fa-whatsapp"></i> Pedir
-                    </a>
-                </div>
-            </article>
-
-            <div class="card rounded-3xl p-6">
-                <div class="aspect-video placeholder rounded-2xl mb-5 flex items-center justify-center">
-                    <i class="fa-solid fa-cube text-6xl"></i>
-                </div>
-                <h3 class="font-semibold text-xl">Organizadores modulares</h3>
-                <p class="muted text-sm mt-1 mb-4">Personalizables en colores y tamaños</p>
-                <div class="flex items-center justify-between">
-                    <span class="font-semibold">Desde $8.500</span>
-                    <span class="text-xs px-3 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 rounded-2xl font-medium">Popular</span>
-                </div>
-            </div>
-
-            <div class="card rounded-3xl p-6">
-                <div class="aspect-video placeholder rounded-2xl mb-5 flex items-center justify-center">
-                    <i class="fa-solid fa-mobile-screen text-6xl"></i>
-                </div>
-                <h3 class="font-semibold text-xl">Soportes para celular</h3>
-                <p class="muted text-sm mt-1 mb-4">Diseños ergonómicos y resistentes</p>
-                <div class="flex items-center justify-between">
-                    <span class="font-semibold">Desde $4.200</span>
-                </div>
-            </div>
-        </div>
+        <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
 
         <div class="mt-8 text-center">
             <p class="text-sm faint">¿No encontrás lo que buscás? <a href="#contacto" class="font-medium hover:underline" style="color:var(--text)">Escribinos</a> y lo hacemos.</p>
@@ -365,12 +356,7 @@
             <h2 class="section-header tracking-tighter">Galería</h2>
             <p class="muted">Algunos trabajos que realizamos</p>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="aspect-square rounded-3xl overflow-hidden"><img class="gallery-photo" src="img/corazon-mama-1.jpg" alt="Corazón de Mamá — frente"></div>
-            <div class="aspect-square rounded-3xl overflow-hidden"><img class="gallery-photo" src="img/corazon-mama-4.jpg" alt="Corazón de Mamá — perfil"></div>
-            <div class="aspect-square rounded-3xl overflow-hidden"><img class="gallery-photo" src="img/corazon-mama-5.jpg" alt="Corazón de Mamá — iluminación"></div>
-            <div class="aspect-square rounded-3xl overflow-hidden"><img class="gallery-photo" src="img/corazon-mama-6.jpg" alt="Corazón de Mamá — detalle"></div>
-        </div>
+        <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
     </section>
 
     <section id="contacto" class="max-w-7xl mx-auto px-6 py-16 border-t line">
@@ -397,6 +383,14 @@
             </div>
         </div>
     </section>
+    </div>
+
+    <section class="product-view max-w-7xl mx-auto px-6 pt-10 pb-20" id="producto">
+        <a href="#catalogo" class="inline-flex items-center gap-2 text-sm font-medium muted mb-8 hover:underline" onclick="closeProduct(event)">
+            <i class="fa-solid fa-arrow-left"></i> Volver al catálogo
+        </a>
+        <div class="grid md:grid-cols-2 gap-10 items-start" id="product-page"></div>
+    </section>
 
     <footer class="site-footer border-t py-8">
         <div class="max-w-7xl mx-auto px-6 text-center text-sm faint">
@@ -404,7 +398,237 @@
         </div>
     </footer>
 
+    <div id="lightbox" role="dialog" aria-modal="true" aria-label="Fotos del producto">
+        <button type="button" class="lb-btn lb-close" onclick="closeLightbox()" aria-label="Cerrar"><i class="fa-solid fa-xmark text-xl"></i></button>
+        <button type="button" class="lb-btn lb-prev" onclick="lightboxStep(-1)" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+        <img id="lightbox-img" alt="">
+        <button type="button" class="lb-btn lb-next" onclick="lightboxStep(1)" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+        <div class="lb-counter" id="lightbox-counter"></div>
+    </div>
+
     <script>
+        const WA = '541153195024';
+
+        const PRODUCTS = [
+            {
+                id: 'corazon-mama',
+                name: 'Corazón de Mamá',
+                price: '$10.500',
+                badge: 'Día de la Madre',
+                badgeClass: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+                short: 'Un detalle para el escritorio o la mesita: corazón impreso en 3D con la palabra Mamá al centro.',
+                long: 'Un detalle para el escritorio o la mesita: corazón impreso en 3D con la palabra Mamá al centro. Ideal para regalar en su día, o cuando quieras decirlo sin tantas palabras. Colores personalizables a pedido.',
+                images: [
+                    'img/corazon-mama-1.jpg',
+                    'img/corazon-mama-2.jpg',
+                    'img/corazon-mama-3.jpg',
+                    'img/corazon-mama-4.jpg',
+                    'img/corazon-mama-5.jpg',
+                    'img/corazon-mama-6.jpg'
+                ]
+            },
+            {
+                id: 'organizadores',
+                name: 'Organizadores modulares',
+                price: 'Desde $8.500',
+                badge: 'Popular',
+                badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+                short: 'Personalizables en colores y tamaños.',
+                long: 'Módulos para ordenar escritorio, cocina o taller. Se pueden combinar y pedir en distintos colores y medidas. Escribinos con la medida que necesitás y te armamos la cotización.',
+                icon: 'fa-cube',
+                images: []
+            },
+            {
+                id: 'soportes-celular',
+                name: 'Soportes para celular',
+                price: 'Desde $4.200',
+                badge: '',
+                badgeClass: '',
+                short: 'Diseños ergonómicos y resistentes.',
+                long: 'Soportes impresos en 3D, pensados para mesa o escritorio. Hay varios ángulos y estilos; si tenés un modelo de celular o un uso puntual (auto, cocina, streaming), lo adaptamos.',
+                icon: 'fa-mobile-screen',
+                images: []
+            }
+        ];
+
+        let lbImages = [];
+        let lbIndex = 0;
+        let touchStartX = 0;
+
+        function productById(id) {
+            return PRODUCTS.find(p => p.id === id);
+        }
+
+        function waLink(p) {
+            const msg = encodeURIComponent('Hola DyL, quiero consultar por ' + p.name + ' (' + p.price + ')');
+            return 'https://wa.me/' + WA + '?text=' + msg;
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalog-grid');
+            grid.innerHTML = PRODUCTS.map(p => {
+                const media = p.images.length
+                    ? `<button type="button" class="catalog-img-wrap aspect-video rounded-2xl mb-5 overflow-hidden w-full" onclick="openLightbox('${p.id}', 0)">
+                            <img class="product-photo" src="${p.images[0]}" alt="${p.name}">
+                       </button>`
+                    : `<a href="#producto/${p.id}" class="aspect-video placeholder rounded-2xl mb-5 flex items-center justify-center">
+                            <i class="fa-solid ${p.icon} text-6xl"></i>
+                       </a>`;
+                const thumbs = p.images.length
+                    ? `<div class="grid grid-cols-4 gap-2 mb-5">
+                            ${p.images.slice(0, 4).map((src, i) =>
+                                `<img class="thumb ${i === 0 ? 'active' : ''}" src="${src}" alt="" onclick="openLightbox('${p.id}', ${i})">`
+                            ).join('')}
+                       </div>`
+                    : '';
+                const badge = p.badge
+                    ? `<span class="shrink-0 text-xs px-3 py-1 rounded-2xl font-medium ${p.badgeClass}">${p.badge}</span>`
+                    : '';
+                return `<article class="card rounded-3xl p-6">
+                    ${media}
+                    ${thumbs}
+                    <div class="flex items-start justify-between gap-3">
+                        <h3 class="font-semibold text-xl">
+                            <a class="product-title-link" href="#producto/${p.id}">${p.name}</a>
+                        </h3>
+                        ${badge}
+                    </div>
+                    <p class="muted text-sm mt-2 mb-4">${p.short}</p>
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="font-semibold">${p.price}</span>
+                        <a href="${waLink(p)}" target="_blank" rel="noopener" class="text-sm font-semibold inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 hover:underline">
+                            <i class="fa-brands fa-whatsapp"></i> Pedir
+                        </a>
+                    </div>
+                </article>`;
+            }).join('');
+        }
+
+        function renderGallery() {
+            const p = productById('corazon-mama');
+            const grid = document.getElementById('gallery-grid');
+            const shots = [0, 3, 4, 5];
+            grid.innerHTML = shots.map(i =>
+                `<button type="button" class="aspect-square rounded-3xl overflow-hidden" onclick="openLightbox('corazon-mama', ${i})">
+                    <img class="gallery-photo" src="${p.images[i]}" alt="${p.name}">
+                 </button>`
+            ).join('');
+        }
+
+        function renderProductPage(p) {
+            const media = p.images.length
+                ? `<div>
+                        <button type="button" class="catalog-img-wrap aspect-square md:aspect-[4/3] rounded-3xl overflow-hidden w-full card" onclick="openLightbox('${p.id}', currentPdpIndex())">
+                            <img id="pdp-main" class="pdp-main-img" src="${p.images[0]}" alt="${p.name}">
+                        </button>
+                        <div class="grid grid-cols-6 gap-2 mt-4">
+                            ${p.images.map((src, i) =>
+                                `<img class="thumb pdp-thumb ${i === 0 ? 'active' : ''}" src="${src}" alt="" onclick="setPdpImage(${i}); openLightbox('${p.id}', ${i})">`
+                            ).join('')}
+                        </div>
+                   </div>`
+                : `<div class="aspect-square placeholder rounded-3xl flex items-center justify-center">
+                        <i class="fa-solid ${p.icon} text-7xl"></i>
+                   </div>`;
+            const badge = p.badge
+                ? `<span class="text-xs px-3 py-1 rounded-2xl font-medium ${p.badgeClass}">${p.badge}</span>`
+                : '';
+            document.getElementById('product-page').innerHTML = `
+                ${media}
+                <div>
+                    <div class="flex items-center gap-3 mb-3">${badge}</div>
+                    <h1 class="logo-font text-4xl md:text-5xl tracking-tight mb-4">${p.name}</h1>
+                    <p class="text-2xl font-semibold mb-6">${p.price}</p>
+                    <p class="muted text-lg mb-8">${p.long}</p>
+                    <a href="${waLink(p)}" target="_blank" rel="noopener"
+                       class="inline-flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-14 px-8 rounded-3xl">
+                        <i class="fa-brands fa-whatsapp text-2xl"></i> Pedir por WhatsApp
+                    </a>
+                </div>`;
+        }
+
+        function currentPdpIndex() {
+            const main = document.getElementById('pdp-main');
+            if (!main) return 0;
+            const p = currentProductFromHash();
+            if (!p) return 0;
+            const i = p.images.indexOf(main.getAttribute('src'));
+            return i < 0 ? 0 : i;
+        }
+
+        function setPdpImage(i) {
+            const main = document.getElementById('pdp-main');
+            const p = currentProductFromHash();
+            if (!main || !p) return;
+            main.src = p.images[i];
+            document.querySelectorAll('.pdp-thumb').forEach((t, idx) => {
+                t.classList.toggle('active', idx === i);
+            });
+        }
+
+        function currentProductFromHash() {
+            const m = location.hash.match(/^#producto\/([^/]+)/);
+            return m ? productById(m[1]) : null;
+        }
+
+        function openProduct(id) {
+            const p = productById(id);
+            if (!p) return;
+            renderProductPage(p);
+            document.body.classList.add('product-open');
+            document.title = p.name + ' • DyL 3D Prints';
+            window.scrollTo(0, 0);
+        }
+
+        function closeProduct(ev) {
+            if (ev) ev.preventDefault();
+            document.body.classList.remove('product-open');
+            document.title = 'DyL 3D Prints • Impresión 3D';
+            const href = ev && ev.currentTarget ? ev.currentTarget.getAttribute('href') : '#catalogo';
+            if (location.hash.startsWith('#producto/')) {
+                history.pushState(null, '', href || '#catalogo');
+            }
+            if (href && href.startsWith('#') && href !== '#producto') {
+                const el = document.querySelector(href);
+                if (el) el.scrollIntoView();
+            }
+        }
+
+        function route() {
+            const p = currentProductFromHash();
+            if (p) openProduct(p.id);
+            else {
+                document.body.classList.remove('product-open');
+                document.title = 'DyL 3D Prints • Impresión 3D';
+            }
+        }
+
+        function openLightbox(productId, index) {
+            const p = productById(productId);
+            if (!p || !p.images.length) return;
+            lbImages = p.images;
+            lbIndex = index || 0;
+            showLightbox();
+        }
+
+        function showLightbox() {
+            document.getElementById('lightbox-img').src = lbImages[lbIndex];
+            document.getElementById('lightbox-counter').textContent = (lbIndex + 1) + ' / ' + lbImages.length;
+            document.getElementById('lightbox').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function lightboxStep(dir) {
+            if (!lbImages.length) return;
+            lbIndex = (lbIndex + dir + lbImages.length) % lbImages.length;
+            showLightbox();
+        }
+
         function applyTheme(theme) {
             const html = document.documentElement;
             const icon = document.getElementById('theme-icon');
@@ -442,14 +666,32 @@
             document.getElementById('mobile-menu').classList.toggle('hidden');
         }
 
-        function swapMama(el) {
-            const main = document.getElementById('mama-main');
-            main.src = el.src;
-            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTheme();
+            renderCatalog();
+            renderGallery();
+            route();
+        });
 
-        document.addEventListener('DOMContentLoaded', loadTheme);
+        window.addEventListener('hashchange', route);
+
+        document.addEventListener('keydown', (e) => {
+            if (!document.getElementById('lightbox').classList.contains('open')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') lightboxStep(-1);
+            if (e.key === 'ArrowRight') lightboxStep(1);
+        });
+
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') closeLightbox();
+        });
+
+        const lbImg = document.getElementById('lightbox-img');
+        lbImg.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+        lbImg.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].screenX - touchStartX;
+            if (Math.abs(dx) > 40) lightboxStep(dx < 0 ? 1 : -1);
+        }, { passive: true });
     </script>
 </body>
 </html>
