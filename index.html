@@ -179,9 +179,12 @@
             transform: translateY(-1px);
         }
 
-        body.product-open .home-view { display: none; }
+        body.product-open .home-view,
+        body.checkout-open .home-view { display: none; }
         body.product-open .product-view { display: block; }
-        .product-view { display: none; }
+        .product-view, .checkout-view { display: none; }
+        body.checkout-open .checkout-view { display: block; }
+        body.checkout-open .product-view { display: none; }
 
         #lightbox {
             position: fixed;
@@ -341,6 +344,45 @@
             object-fit: cover;
             border-radius: 14px;
             background: var(--bg-muted);
+        }
+
+        .pay-card {
+            width: 100%;
+            text-align: left;
+            background: var(--bg-elev);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+        .pay-card:hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
+        .pay-card.selected {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+        }
+        .pay-detail {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+            font-size: 13px;
+            color: var(--text-soft);
+        }
+        .pay-card.selected .pay-detail { display: block; }
+        .copy-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: var(--bg-muted);
+            color: var(--text);
+            font-weight: 600;
+            font-size: 13px;
+            border: 0;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -509,6 +551,32 @@
         <div class="grid md:grid-cols-2 gap-10 items-start" id="product-page"></div>
     </section>
 
+    <section class="checkout-view max-w-5xl mx-auto px-6 pt-10 pb-20">
+        <a href="#catalogo" class="inline-flex items-center gap-2 text-sm font-medium muted mb-8 hover:underline" onclick="closeCheckout(event)">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </a>
+        <h1 class="logo-font text-4xl md:text-5xl tracking-tight mb-2">Checkout</h1>
+        <p class="muted mb-10">Revisá el pedido y elegí cómo pagar.</p>
+        <div class="grid md:grid-cols-5 gap-8">
+            <div class="md:col-span-3 space-y-3" id="pay-methods"></div>
+            <div class="md:col-span-2">
+                <div class="card rounded-3xl p-6 sticky top-24">
+                    <h3 class="font-semibold mb-4">Resumen</h3>
+                    <div id="checkout-summary"></div>
+                    <div class="flex justify-between items-start mt-4 pt-4 border-t line" id="checkout-total-wrap">
+                        <span class="muted">Total</span>
+                        <span class="font-semibold text-lg text-right" id="checkout-total">$0</span>
+                    </div>
+                    <p class="text-xs faint mt-4" id="pay-hint">Elegí un medio de pago para continuar.</p>
+                    <a id="pay-confirm" href="#" target="_blank" rel="noopener"
+                       class="mt-4 flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm pointer-events-none opacity-50">
+                        Confirmar por WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <footer class="site-footer border-t py-8">
         <div class="max-w-7xl mx-auto px-6 text-center text-sm faint">
             © 2026 DyL 3D Prints • Buenos Aires, Argentina
@@ -529,12 +597,16 @@
                 <span class="muted text-sm">Total</span>
                 <span id="cart-total" class="font-semibold text-lg">$0</span>
             </div>
+            <button type="button" id="cart-buy" onclick="goCheckout()"
+               class="flex items-center justify-center gap-2 w-full h-12 rounded-2xl btn-primary font-semibold text-sm">
+                Comprar
+            </button>
             <a id="cart-checkout" href="#" target="_blank" rel="noopener"
-               class="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm">
+               class="mt-2 flex items-center justify-center gap-2 w-full h-12 rounded-2xl btn-ghost font-semibold text-sm">
                 <i class="fa-brands fa-whatsapp text-lg"></i>
                 Enviar pedido por WhatsApp
             </a>
-            <p class="text-xs faint text-center mt-3">Te abrimos un mensaje listo para confirmar.</p>
+            <p class="text-xs faint text-center mt-3">Comprar abre el checkout. WhatsApp manda el pedido para coordinar.</p>
         </div>
     </aside>
 
@@ -549,6 +621,13 @@
     <script>
         const WA = '541153195024';
         const CART_KEY = 'dyl-cart';
+        const PAY = {
+            alias: 'lgiordano2.ppay',
+            titular: 'Leandro Rodrigo Giordano',
+            mpLink: ''
+        };
+        const TRANSFER_OFF = 0.05;
+        let selectedPay = null;
 
         const PRODUCTS = [
             {
@@ -625,6 +704,15 @@
             return PRODUCTS.reduce((sum, p) => sum + qtyOf(p.id) * p.priceNum, 0);
         }
 
+        function transferSelected() {
+            return selectedPay === 'transferencia';
+        }
+
+        function payableTotal() {
+            const t = cartTotal();
+            return transferSelected() ? Math.round(t * (1 - TRANSFER_OFF)) : t;
+        }
+
         function formatARS(n) {
             return '$' + n.toLocaleString('es-AR');
         }
@@ -691,7 +779,7 @@
                     </div>`;
                 }).join('');
             }
-            document.getElementById('cart-total').textContent = formatARS(cartTotal());
+            document.getElementById('cart-total').textContent = formatARS(payableTotal());
             document.getElementById('cart-checkout').href = checkoutLink();
         }
 
@@ -710,6 +798,126 @@
         function closeCart() {
             document.getElementById('cart-drawer').classList.remove('open');
             document.getElementById('cart-backdrop').classList.remove('open');
+        }
+
+        const PAY_METHODS = [
+            {
+                id: 'transferencia',
+                icon: 'fa-building-columns',
+                title: 'Transferencia bancaria',
+                subtitle: '5% de descuento. Solo alias.',
+                detail: () => `Titular: ${PAY.titular}<br>Alias: <strong>${PAY.alias}</strong><br>Descuento 5% por pagar con transferencia.
+                    <div><button type="button" class="copy-chip" onclick="copyText('${PAY.alias}')"><i class="fa-regular fa-copy"></i> Copiar alias</button></div>`
+            },
+            {
+                id: 'mercadopago',
+                icon: 'fa-handshake',
+                title: 'Mercado Pago',
+                subtitle: 'Pago online, crédito, débito o dinero en cuenta.',
+                detail: () => PAY.mpLink
+                    ? `Te redirigimos a Mercado Pago para pagar el total.`
+                    : `Por ahora confirmamos el cobro por Mercado Pago desde WhatsApp. Elegí esta opción y tocá confirmar.`
+            },
+            {
+                id: 'tarjetas',
+                icon: 'fa-credit-card',
+                title: 'Tarjeta de crédito o débito',
+                subtitle: 'Visa, Mastercard y cabal a través de Mercado Pago.',
+                detail: () => `El cobro con tarjeta se hace por link de Mercado Pago. Confirmá y te lo enviamos por WhatsApp.`
+            },
+            {
+                id: 'billeteras',
+                icon: 'fa-wallet',
+                title: 'Otras billeteras',
+                subtitle: 'Modo, Ualá, Naranja X, Personal Pay y similares.',
+                detail: () => `Transferí al alias <strong>${PAY.alias}</strong> desde tu billetera.
+                    <div><button type="button" class="copy-chip" onclick="copyText('${PAY.alias}')"><i class="fa-regular fa-copy"></i> Copiar alias</button></div>`
+            }
+        ];
+
+        function renderPayMethods() {
+            document.getElementById('pay-methods').innerHTML = PAY_METHODS.map(m => `
+                <button type="button" class="pay-card ${selectedPay === m.id ? 'selected' : ''}" onclick="selectPay('${m.id}')">
+                    <div class="flex items-start gap-4">
+                        <div class="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style="background:var(--bg-muted); color:var(--accent)">
+                            <i class="fa-solid ${m.icon}"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">${m.title}</div>
+                            <div class="text-sm muted mt-1">${m.subtitle}</div>
+                            <div class="pay-detail">${m.detail()}</div>
+                        </div>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).catch(() => {});
+        }
+
+        function selectPay(id) {
+            selectedPay = id;
+            renderPayMethods();
+            updatePayConfirm();
+        }
+
+        function updatePayConfirm() {
+            const btn = document.getElementById('pay-confirm');
+            const hint = document.getElementById('pay-hint');
+            const method = PAY_METHODS.find(m => m.id === selectedPay);
+            const subtotal = cartTotal();
+            const total = payableTotal();
+            const el = document.getElementById('checkout-total');
+            if (transferSelected() && subtotal > 0) {
+                el.innerHTML = `<span class="block faint line-through text-sm font-medium">${formatARS(subtotal)}</span>
+                    <span class="block">${formatARS(total)}</span>
+                    <span class="block text-xs font-medium mt-1" style="color:var(--accent)">5% off transferencia</span>`;
+            } else {
+                el.textContent = formatARS(subtotal);
+            }
+            const cartTotalEl = document.getElementById('cart-total');
+            if (cartTotalEl) {
+                cartTotalEl.innerHTML = transferSelected() && subtotal > 0
+                    ? `<span class="line-through faint text-sm mr-2">${formatARS(subtotal)}</span>${formatARS(total)}`
+                    : formatARS(subtotal);
+            }
+            const lines = PRODUCTS.filter(p => qtyOf(p.id) > 0);
+            document.getElementById('checkout-summary').innerHTML = lines.length
+                ? lines.map(p => `<div class="flex justify-between text-sm py-1"><span class="muted">${p.name} ×${qtyOf(p.id)}</span><span>${formatARS(p.priceNum * qtyOf(p.id))}</span></div>`).join('')
+                    + (transferSelected() ? `<div class="flex justify-between text-sm py-1"><span class="muted">Descuento transferencia 5%</span><span style="color:var(--accent)">− ${formatARS(subtotal - total)}</span></div>` : '')
+                : '<p class="muted text-sm">El carrito está vacío.</p>';
+            if (!lines.length || !method) {
+                btn.classList.add('pointer-events-none', 'opacity-50');
+                hint.textContent = lines.length ? 'Elegí un medio de pago para continuar.' : 'Agregá productos al carrito para pagar.';
+                btn.href = '#';
+                return;
+            }
+            btn.classList.remove('pointer-events-none', 'opacity-50');
+            hint.textContent = transferSelected()
+                ? 'Total con 5% off. Confirmá y te mandamos el alias por WhatsApp.'
+                : 'Te abrimos WhatsApp con el pedido y el medio elegido.';
+            const list = lines.map(p => `• ${p.name} x${qtyOf(p.id)} — ${formatARS(p.priceNum * qtyOf(p.id))}`).join('\n');
+            const extra = transferSelected()
+                ? `\nDescuento transferencia 5%: − ${formatARS(subtotal - total)}\nTotal: ${formatARS(total)}\nAlias: ${PAY.alias}`
+                : `\nTotal: ${formatARS(total)}`;
+            const msg = `Hola DyL, quiero pagar este pedido:\n\n${list}${extra}\nMedio de pago: ${method.title}`;
+            btn.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
+        }
+
+        function goCheckout() {
+            if (!cartCount()) return;
+            closeCart();
+            location.hash = 'checkout';
+        }
+
+        function closeCheckout(ev) {
+            if (ev) ev.preventDefault();
+            document.body.classList.remove('checkout-open');
+            const href = ev && ev.currentTarget ? ev.currentTarget.getAttribute('href') : '#catalogo';
+            history.pushState(null, '', href || '#catalogo');
+            const el = document.querySelector(href);
+            if (el) el.scrollIntoView();
         }
 
         function renderCatalog() {
@@ -838,6 +1046,16 @@
         }
 
         function route() {
+            if (location.hash === '#checkout') {
+                document.body.classList.add('checkout-open');
+                document.body.classList.remove('product-open');
+                document.title = 'Checkout • DyL 3D Prints';
+                renderPayMethods();
+                updatePayConfirm();
+                window.scrollTo(0, 0);
+                return;
+            }
+            document.body.classList.remove('checkout-open');
             const p = currentProductFromHash();
             if (p) openProduct(p.id);
             else {
