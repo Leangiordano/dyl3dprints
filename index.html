@@ -414,16 +414,16 @@
     <nav class="site-nav sticky top-0 z-50 border-b">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center h-20">
-                <a href="#inicio" class="logo-btn inline-flex items-center" aria-label="DyL 3D Prints — inicio" onclick="closeCart(); closeProduct(event)">
+                <a href="#inicio" class="logo-btn inline-flex items-center" aria-label="DyL 3D Prints — inicio" onclick="closeCart()">
                     <img src="logo.jpg" alt="DyL 3D Prints">
                 </a>
 
                 <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
-                    <a href="#inicio" class="nav-link" onclick="closeCart(); closeProduct(event)">Inicio</a>
-                    <a href="#catalogo" class="nav-link" onclick="closeCart(); closeProduct(event)">Catálogo</a>
-                    <a href="#servicio" class="nav-link" onclick="closeCart(); closeProduct(event)">Servicio</a>
-                    <a href="#galeria" class="nav-link" onclick="closeCart(); closeProduct(event)">Galería</a>
-                    <a href="#contacto" class="nav-link" onclick="closeCart(); closeProduct(event)">Contacto</a>
+                    <a href="#inicio" class="nav-link" onclick="closeCart()">Inicio</a>
+                    <a href="#catalogo" class="nav-link" onclick="closeCart()">Catálogo</a>
+                    <a href="#servicio" class="nav-link" onclick="closeCart()">Servicio</a>
+                    <a href="#galeria" class="nav-link" onclick="closeCart()">Galería</a>
+                    <a href="#contacto" class="nav-link" onclick="closeCart()">Contacto</a>
                 </div>
 
                 <div class="flex items-center gap-x-2">
@@ -444,11 +444,11 @@
 
     <div id="mobile-menu" class="hidden md:hidden border-b">
         <div class="px-6 py-4 flex flex-col gap-y-1 text-sm font-medium">
-            <a href="#inicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Inicio</a>
-            <a href="#catalogo" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Catálogo</a>
-            <a href="#servicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Servicio</a>
-            <a href="#galeria" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Galería</a>
-            <a href="#contacto" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Contacto</a>
+            <a href="#inicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart()">Inicio</a>
+            <a href="#catalogo" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart()">Catálogo</a>
+            <a href="#servicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart()">Servicio</a>
+            <a href="#galeria" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart()">Galería</a>
+            <a href="#contacto" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart()">Contacto</a>
         </div>
     </div>
 
@@ -1001,12 +1001,12 @@
         }
 
         function closeCheckout(ev) {
-            if (ev) ev.preventDefault();
+            closeCart();
             document.body.classList.remove('checkout-open');
+            document.body.classList.remove('product-open');
             const href = ev && ev.currentTarget ? ev.currentTarget.getAttribute('href') : '#catalogo';
-            history.pushState(null, '', href || '#catalogo');
-            const el = document.querySelector(href);
-            if (el) el.scrollIntoView();
+            if (ev) ev.preventDefault();
+            location.hash = href || '#catalogo';
         }
 
         function renderCatalog() {
