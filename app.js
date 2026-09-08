@@ -5,7 +5,7 @@ const WA = '541153195024';
             titular: 'Leandro Rodrigo Giordano',
             mpLink: 'https://link.mercadopago.com.ar/dyl3dprints',
             mpName: 'DyL 3D Prints',
-            qrImg: 'img/qr-personal-pay.png'
+            qrImg: 'img/qr-personal-pay.jpg'
         };
         const TRANSFER_OFF = 0.05;
         let selectedPay = null;
