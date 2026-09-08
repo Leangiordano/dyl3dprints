@@ -6,6 +6,7 @@ const WA = '541153195024';
             mpLink: 'https://link.mercadopago.com.ar/dyl3dprints',
             mpName: 'DyL 3D Prints',
             qrImg: 'img/qr-personal-pay.png',
+            qrMp: 'img/qr-mercadopago.png',
             emv: '00020101021127730018ar.com.personalpay0147fcE8ib1ALcP1gPGMAxQz54-jMkJV9hm8pnHhgqQ1UJKqY-05204739953030325802AR5925DyL3DPrintsLegisoluciones6004CABA6304EF3D'
         };
 
@@ -273,9 +274,9 @@ const WA = '541153195024';
             {
                 id: 'billeteras',
                 icon: 'fa-wallet',
-                title: 'Otras billeteras',
-                subtitle: 'QR oficial de Personal Pay. También podés transferir al alias.',
-                detail: () => `QR de cobro Personal Pay. Cargá el total del resumen al pagar.
+                title: 'Otras billeteras / QR',
+                subtitle: 'QR oficial de Mercado Pago. MP, MODO, bancos y otras billeteras.',
+                detail: () => `El QR del resumen abre el mismo checkout de Mercado Pago, con el monto cerrado. Si preferís transferir: 
                     <button type="button" class="copy-chip" onclick="event.stopPropagation(); copyText('${PAY.alias}')"><span>${PAY.alias}</span><span><i class="fa-regular fa-copy"></i> Copiar alias</span></button>`
             }
         ];
@@ -305,6 +306,42 @@ const WA = '541153195024';
             selectedPay = id;
             renderPayMethods();
             updatePayConfirm();
+        }
+
+
+        let mpQrToken = 0;
+        async function renderMpQr(qrBox, total) {
+            const token = ++mpQrToken;
+            qrBox.classList.add('show');
+            qrBox.innerHTML = `<div class="text-xs muted">Generando QR con ${formatARS(total)}…</div>`;
+            const items = PRODUCTS.filter(p => qtyOf(p.id) > 0 && !p.consult).map(p => ({
+                id: p.id,
+                title: p.name,
+                quantity: qtyOf(p.id),
+                unit_price: p.priceNum
+            }));
+            if (!items.length) {
+                qrBox.innerHTML = `<p class="text-xs muted">Este pedido no tiene un monto para cobrar por QR.</p>`;
+                return;
+            }
+            try {
+                const res = await fetch('/api/create-preference', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items, total, payer_method: selectedPay })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (token !== mpQrToken) return;
+                if (!res.ok || !data.init_point) throw new Error(data.error || 'fail');
+                const src = 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&ecc=M&margin=10&data=' + encodeURIComponent(data.init_point);
+                qrBox.innerHTML = `<img src="${src}" alt="QR Mercado Pago">
+                    <div class="text-sm font-semibold mt-3">${formatARS(total)}</div>
+                    <div class="text-xs muted mt-1">Mercado Pago · monto cerrado</div>
+                    <p class="text-xs faint mt-2">Escaneá con la cámara del celular. Abre el checkout de Mercado Pago con ${formatARS(total)} ya cargado. No uses “pagar con QR” de MODO/banco sobre este código: es un link de cobro, no el QR de mostrador.</p>`;
+            } catch (e) {
+                if (token !== mpQrToken) return;
+                qrBox.innerHTML = `<p class="text-xs muted">No se pudo generar el QR. Usá el botón de Mercado Pago.</p>`;
+            }
         }
 
         function updatePayConfirm() {
@@ -339,13 +376,13 @@ const WA = '541153195024';
             const qrBox = document.getElementById('pay-qr');
             if (qrBox) {
                 if (selectedPay === 'billeteras' && lines.length) {
-                    const payload = personalPayQr(total);
-                    const src = 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&ecc=M&margin=8&data=' + encodeURIComponent(payload);
                     qrBox.classList.add('show');
-                    qrBox.innerHTML = `<img src="${src}" alt="QR Personal Pay por ${formatARS(total)}">
+                    qrBox.innerHTML = `<img src="${PAY.qrMp}" alt="QR Mercado Pago DyL">
                         <div class="text-sm font-semibold mt-3">${total ? formatARS(total) : 'Consultar'}</div>
-                        <div class="text-xs muted mt-1">Personal Pay · monto cerrado</div>
-                        <p class="text-xs faint mt-2">El QR ya sale con ${total ? formatARS(total) : 'el pedido'}. No hace falta tipear el importe. Si la app no lo toma, transferí al alias.</p>`;
+                        <div class="text-xs muted mt-1">DyL 3D Prints · Caja Web</div>
+                        <p class="text-xs faint mt-2">QR oficial de Mercado Pago. Escaneá con MP, MODO, banco u otra billetera. El total a pagar es <strong>${total ? formatARS(total) : 'a consultar'}</strong>.</p>`;
+                } else if ((selectedPay === 'mercadopago' || selectedPay === 'tarjetas') && total > 0) {
+                    renderMpQr(qrBox, total);
                 } else {
                     qrBox.classList.remove('show');
                     qrBox.innerHTML = '';
