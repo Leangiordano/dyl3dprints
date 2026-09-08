@@ -89,6 +89,24 @@ const WA = '541153195024';
                 ]
             },
             {
+                id: 'soporte-cepillos',
+                name: 'Soporte cepillo de dientes y pasta',
+                price: 'Consultar',
+                priceNum: 0,
+                consult: true,
+                categories: ['accesorios'],
+                badge: 'Accesorios',
+                badgeClass: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+                short: 'Organizador para 2, 3 o 4 cepillos, con apoyo para pasta de tapa redonda o tapita a rosca.',
+                long: 'Soporte impreso en 3D para el lavatorio: 2, 3 o 4 cepillos y un apoyo lateral para la pasta, compatible con tapa redonda y con tapita a rosca chica. Base calada para que escurra. Consultá color y cantidad de cepillos.',
+                images: [
+                    'img/soporte-cepillos-1.jpg',
+                    'img/soporte-cepillos-2.jpg',
+                    'img/soporte-cepillos-3.jpg',
+                    'img/soporte-cepillos-4.jpg'
+                ]
+            },
+            {
                 id: 'organizadores',
                 name: 'Organizadores modulares',
                 price: 'Desde $8.500',
