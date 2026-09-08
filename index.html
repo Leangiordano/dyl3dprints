@@ -157,9 +157,7 @@
             display: block;
         }
 
-        .catalog-img-wrap {
-            cursor: zoom-in;
-        }
+        .catalog-img-wrap { cursor: zoom-in; }
 
         .product-title-link {
             color: inherit;
@@ -229,6 +227,121 @@
             color: #e2e8f0;
             font-size: 14px;
         }
+
+        .cart-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 999px;
+            background: var(--text);
+            color: var(--bg);
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 18px;
+            text-align: center;
+            transform: scale(0);
+            transform-origin: center;
+            transition: transform .22s ease;
+        }
+        html.dark .cart-badge {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+        .cart-badge.show { transform: scale(1); }
+        .cart-badge.pop { animation: badge-pop .28s ease; }
+        @keyframes badge-pop {
+            0% { transform: scale(.7); }
+            55% { transform: scale(1.18); }
+            100% { transform: scale(1); }
+        }
+
+        .qty-wrap {
+            display: inline-flex;
+            align-items: center;
+            height: 40px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--bg-elev) 80%, transparent);
+            overflow: hidden;
+        }
+        .qty-wrap button {
+            width: 38px;
+            height: 40px;
+            border: 0;
+            background: transparent;
+            color: var(--text-soft);
+            cursor: pointer;
+        }
+        .qty-wrap button:hover { color: var(--text); background: var(--bg-muted); }
+        .qty-wrap span {
+            min-width: 22px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .add-cart-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: color-mix(in srgb, var(--bg-elev) 80%, transparent);
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s ease, border-color .2s ease;
+        }
+        .add-cart-btn:hover {
+            background: var(--bg-muted);
+            border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+        }
+
+        .cart-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: min(400px, 100vw);
+            height: 100vh;
+            z-index: 70;
+            background: var(--bg-elev);
+            border-left: 1px solid var(--line);
+            transform: translateX(100%);
+            transition: transform .32s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -24px 0 50px -28px rgb(15 23 42 / .35);
+        }
+        .cart-drawer.open { transform: translateX(0); }
+
+        .cart-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 65;
+            background: rgb(15 23 42 / .35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .32s ease;
+        }
+        .cart-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .cart-line-img {
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 14px;
+            background: var(--bg-muted);
+        }
     </style>
 </head>
 <body>
@@ -249,9 +362,13 @@
                     <a href="#contacto" class="nav-link" onclick="closeProduct(event)">Contacto</a>
                 </div>
 
-                <div class="flex items-center gap-x-3">
+                <div class="flex items-center gap-x-2">
                     <button type="button" onclick="toggleDarkMode()" class="icon-btn w-10 h-10 flex items-center justify-center rounded-2xl transition-colors" aria-label="Cambiar tema">
                         <i class="fa-solid fa-moon text-lg" id="theme-icon"></i>
+                    </button>
+                    <button type="button" onclick="toggleCart()" class="icon-btn relative w-10 h-10 flex items-center justify-center rounded-2xl" aria-label="Carrito">
+                        <i class="fa-solid fa-bag-shopping text-lg"></i>
+                        <span id="cart-badge" class="cart-badge">0</span>
                     </button>
                     <button type="button" class="md:hidden icon-btn w-10 h-10 flex items-center justify-center rounded-2xl" onclick="toggleMobileMenu()" aria-label="Menú">
                         <i class="fa-solid fa-bars text-xl"></i>
@@ -398,6 +515,29 @@
         </div>
     </footer>
 
+    <div id="cart-backdrop" class="cart-backdrop" onclick="closeCart()"></div>
+    <aside id="cart-drawer" class="cart-drawer" aria-label="Carrito">
+        <div class="flex items-center justify-between px-6 h-20 border-b line">
+            <h2 class="font-semibold text-lg">Tu pedido</h2>
+            <button type="button" class="icon-btn w-10 h-10 rounded-2xl" onclick="closeCart()" aria-label="Cerrar carrito">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="cart-items" class="flex-1 overflow-y-auto px-6 py-4"></div>
+        <div class="border-t line px-6 py-5">
+            <div class="flex items-center justify-between mb-4">
+                <span class="muted text-sm">Total</span>
+                <span id="cart-total" class="font-semibold text-lg">$0</span>
+            </div>
+            <a id="cart-checkout" href="#" target="_blank" rel="noopener"
+               class="flex items-center justify-center gap-2 w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm">
+                <i class="fa-brands fa-whatsapp text-lg"></i>
+                Enviar pedido por WhatsApp
+            </a>
+            <p class="text-xs faint text-center mt-3">Te abrimos un mensaje listo para confirmar.</p>
+        </div>
+    </aside>
+
     <div id="lightbox" role="dialog" aria-modal="true" aria-label="Fotos del producto">
         <button type="button" class="lb-btn lb-close" onclick="closeLightbox()" aria-label="Cerrar"><i class="fa-solid fa-xmark text-xl"></i></button>
         <button type="button" class="lb-btn lb-prev" onclick="lightboxStep(-1)" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
@@ -408,12 +548,14 @@
 
     <script>
         const WA = '541153195024';
+        const CART_KEY = 'dyl-cart';
 
         const PRODUCTS = [
             {
                 id: 'corazon-mama',
                 name: 'Corazón de Mamá',
                 price: '$10.500',
+                priceNum: 10500,
                 badge: 'Día de la Madre',
                 badgeClass: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
                 short: 'Un detalle para el escritorio o la mesita: corazón impreso en 3D con la palabra Mamá al centro.',
@@ -431,6 +573,7 @@
                 id: 'organizadores',
                 name: 'Organizadores modulares',
                 price: 'Desde $8.500',
+                priceNum: 8500,
                 badge: 'Popular',
                 badgeClass: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
                 short: 'Personalizables en colores y tamaños.',
@@ -442,6 +585,7 @@
                 id: 'soportes-celular',
                 name: 'Soportes para celular',
                 price: 'Desde $4.200',
+                priceNum: 4200,
                 badge: '',
                 badgeClass: '',
                 short: 'Diseños ergonómicos y resistentes.',
@@ -451,6 +595,7 @@
             }
         ];
 
+        let cart = {};
         let lbImages = [];
         let lbIndex = 0;
         let touchStartX = 0;
@@ -459,9 +604,112 @@
             return PRODUCTS.find(p => p.id === id);
         }
 
-        function waLink(p) {
-            const msg = encodeURIComponent('Hola DyL, quiero consultar por ' + p.name + ' (' + p.price + ')');
-            return 'https://wa.me/' + WA + '?text=' + msg;
+        function loadCart() {
+            try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '{}') || {}; }
+            catch (e) { cart = {}; }
+        }
+
+        function saveCart() {
+            localStorage.setItem(CART_KEY, JSON.stringify(cart));
+        }
+
+        function qtyOf(id) {
+            return cart[id] || 0;
+        }
+
+        function cartCount() {
+            return Object.values(cart).reduce((a, b) => a + b, 0);
+        }
+
+        function cartTotal() {
+            return PRODUCTS.reduce((sum, p) => sum + qtyOf(p.id) * p.priceNum, 0);
+        }
+
+        function formatARS(n) {
+            return '$' + n.toLocaleString('es-AR');
+        }
+
+        function setQty(id, qty) {
+            qty = Math.max(0, Math.min(99, qty | 0));
+            if (qty === 0) delete cart[id];
+            else cart[id] = qty;
+            saveCart();
+            refreshCartUI();
+        }
+
+        function addOne(id) { setQty(id, qtyOf(id) + 1); }
+        function subOne(id) { setQty(id, qtyOf(id) - 1); }
+
+        function qtyControl(id) {
+            const q = qtyOf(id);
+            if (q === 0) {
+                return `<button type="button" class="add-cart-btn" onclick="addOne('${id}')">
+                    <i class="fa-solid fa-bag-shopping"></i> Agregar
+                </button>`;
+            }
+            return `<div class="qty-wrap" aria-label="Cantidad">
+                <button type="button" onclick="subOne('${id}')" aria-label="Quitar uno"><i class="fa-solid fa-minus text-xs"></i></button>
+                <span>${q}</span>
+                <button type="button" onclick="addOne('${id}')" aria-label="Agregar uno"><i class="fa-solid fa-plus text-xs"></i></button>
+            </div>`;
+        }
+
+        function refreshCartUI() {
+            const badge = document.getElementById('cart-badge');
+            const n = cartCount();
+            badge.textContent = n > 99 ? '99+' : String(n);
+            badge.classList.toggle('show', n > 0);
+            badge.classList.remove('pop');
+            void badge.offsetWidth;
+            if (n > 0) badge.classList.add('pop');
+
+            document.querySelectorAll('[data-cart-controls]').forEach(el => {
+                el.innerHTML = qtyControl(el.dataset.cartControls);
+            });
+
+            renderCartDrawer();
+        }
+
+        function renderCartDrawer() {
+            const box = document.getElementById('cart-items');
+            const lines = PRODUCTS.filter(p => qtyOf(p.id) > 0);
+            if (!lines.length) {
+                box.innerHTML = '<p class="muted text-sm py-10 text-center">El carrito está vacío.</p>';
+            } else {
+                box.innerHTML = lines.map(p => {
+                    const thumb = p.images[0]
+                        ? `<img class="cart-line-img" src="${p.images[0]}" alt="">`
+                        : `<div class="cart-line-img flex items-center justify-center faint"><i class="fa-solid ${p.icon}"></i></div>`;
+                    return `<div class="flex gap-3 py-4 border-b line">
+                        ${thumb}
+                        <div class="flex-1 min-w-0">
+                            <div class="font-medium truncate">${p.name}</div>
+                            <div class="text-sm muted mt-0.5">${formatARS(p.priceNum)}</div>
+                            <div class="mt-2" data-cart-controls="${p.id}">${qtyControl(p.id)}</div>
+                        </div>
+                        <div class="text-sm font-semibold pt-1">${formatARS(p.priceNum * qtyOf(p.id))}</div>
+                    </div>`;
+                }).join('');
+            }
+            document.getElementById('cart-total').textContent = formatARS(cartTotal());
+            document.getElementById('cart-checkout').href = checkoutLink();
+        }
+
+        function checkoutLink() {
+            const lines = PRODUCTS.filter(p => qtyOf(p.id) > 0);
+            if (!lines.length) return 'https://wa.me/' + WA;
+            const list = lines.map(p => `• ${p.name} x${qtyOf(p.id)} — ${formatARS(p.priceNum * qtyOf(p.id))}`).join('\n');
+            const msg = `Hola DyL, quiero este pedido:\n\n${list}\n\nTotal: ${formatARS(cartTotal())}`;
+            return 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
+        }
+
+        function toggleCart() {
+            const open = document.getElementById('cart-drawer').classList.toggle('open');
+            document.getElementById('cart-backdrop').classList.toggle('open', open);
+        }
+        function closeCart() {
+            document.getElementById('cart-drawer').classList.remove('open');
+            document.getElementById('cart-backdrop').classList.remove('open');
         }
 
         function renderCatalog() {
@@ -496,9 +744,7 @@
                     <p class="muted text-sm mt-2 mb-4">${p.short}</p>
                     <div class="flex items-center justify-between gap-3">
                         <span class="font-semibold">${p.price}</span>
-                        <a href="${waLink(p)}" target="_blank" rel="noopener" class="text-sm font-semibold inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 hover:underline">
-                            <i class="fa-brands fa-whatsapp"></i> Pedir
-                        </a>
+                        <div data-cart-controls="${p.id}">${qtyControl(p.id)}</div>
                     </div>
                 </article>`;
             }).join('');
@@ -540,10 +786,7 @@
                     <h1 class="logo-font text-4xl md:text-5xl tracking-tight mb-4">${p.name}</h1>
                     <p class="text-2xl font-semibold mb-6">${p.price}</p>
                     <p class="muted text-lg mb-8">${p.long}</p>
-                    <a href="${waLink(p)}" target="_blank" rel="noopener"
-                       class="inline-flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-14 px-8 rounded-3xl">
-                        <i class="fa-brands fa-whatsapp text-2xl"></i> Pedir por WhatsApp
-                    </a>
+                    <div data-cart-controls="${p.id}">${qtyControl(p.id)}</div>
                 </div>`;
         }
 
@@ -668,16 +911,21 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadTheme();
+            loadCart();
             renderCatalog();
             renderGallery();
+            refreshCartUI();
             route();
         });
 
         window.addEventListener('hashchange', route);
 
         document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLightbox();
+                closeCart();
+            }
             if (!document.getElementById('lightbox').classList.contains('open')) return;
-            if (e.key === 'Escape') closeLightbox();
             if (e.key === 'ArrowLeft') lightboxStep(-1);
             if (e.key === 'ArrowRight') lightboxStep(1);
         });
