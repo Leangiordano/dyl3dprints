@@ -4,7 +4,8 @@ const WA = '541153195024';
             alias: 'lgiordano2.ppay',
             titular: 'Leandro Rodrigo Giordano',
             mpLink: 'https://link.mercadopago.com.ar/dyl3dprints',
-            mpName: 'DyL 3D Prints'
+            mpName: 'DyL 3D Prints',
+            qrImg: 'img/qr-personal-pay.png'
         };
         const TRANSFER_OFF = 0.05;
         let selectedPay = null;
@@ -241,9 +242,9 @@ const WA = '541153195024';
                 id: 'billeteras',
                 icon: 'fa-wallet',
                 title: 'Otras billeteras',
-                subtitle: 'QR para Modo, banco, Ualá, Naranja X o Personal Pay.',
-                detail: () => `Escaneá el QR del resumen o transferí al alias.
-                    <button type="button" class="copy-chip" onclick="event.stopPropagation(); copyText('${PAY.alias}')"><span>${PAY.alias}</span><span><i class="fa-regular fa-copy"></i> Copiar</span></button>`
+                subtitle: 'QR oficial de Personal Pay. También podés transferir al alias.',
+                detail: () => `QR de cobro Personal Pay. Cargá el total del resumen al pagar.
+                    <button type="button" class="copy-chip" onclick="event.stopPropagation(); copyText('${PAY.alias}')"><span>${PAY.alias}</span><span><i class="fa-regular fa-copy"></i> Copiar alias</span></button>`
             }
         ];
 
@@ -306,13 +307,11 @@ const WA = '541153195024';
             const qrBox = document.getElementById('pay-qr');
             if (qrBox) {
                 if (selectedPay === 'billeteras' && lines.length) {
-                    const payload = PAY.alias;
-                    const src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&ecc=M&data=' + encodeURIComponent(payload);
                     qrBox.classList.add('show');
-                    qrBox.innerHTML = `<img src="${src}" alt="QR de pago">
-                        <div class="text-sm font-semibold">${formatARS(total)}</div>
-                        <div class="text-xs muted mt-1">${PAY.alias}</div>
-                        <p class="text-xs faint mt-2">Abrí Modo, tu banco o la billetera → Transferir / escanear QR. Completá el monto de arriba.</p>`;
+                    qrBox.innerHTML = `<img src="${PAY.qrImg}" alt="QR Personal Pay">
+                        <div class="text-sm font-semibold mt-3">${total ? formatARS(total) : 'Consultar'}</div>
+                        <div class="text-xs muted mt-1">Personal Pay · ${PAY.alias}</div>
+                        <p class="text-xs faint mt-2">Escaneá con Personal Pay u otra app que lea QR de cobro. El monto lo cargás vos: ${total ? formatARS(total) : 'el valor a consultar'}.</p>`;
                 } else {
                     qrBox.classList.remove('show');
                     qrBox.innerHTML = '';
