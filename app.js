@@ -241,8 +241,8 @@ const WA = '541153195024';
                 id: 'billeteras',
                 icon: 'fa-wallet',
                 title: 'Otras billeteras',
-                subtitle: 'Modo, Ualá, Naranja X, Personal Pay y similares.',
-                detail: () => `Transferí desde tu billetera al mismo alias.
+                subtitle: 'QR para Modo, banco, Ualá, Naranja X o Personal Pay.',
+                detail: () => `Escaneá el QR del resumen o transferí al alias.
                     <button type="button" class="copy-chip" onclick="event.stopPropagation(); copyText('${PAY.alias}')"><span>${PAY.alias}</span><span><i class="fa-regular fa-copy"></i> Copiar</span></button>`
             }
         ];
@@ -303,6 +303,21 @@ const WA = '541153195024';
                     + (transferSelected() ? `<div class="flex justify-between text-sm py-1"><span class="muted">Descuento transferencia 5%</span><span style="color:var(--accent)">− ${formatARS(subtotal - total)}</span></div>` : '')
                     + methodLine
                 : '<p class="muted text-sm">El carrito está vacío.</p>';
+            const qrBox = document.getElementById('pay-qr');
+            if (qrBox) {
+                if (selectedPay === 'billeteras' && lines.length) {
+                    const payload = PAY.alias;
+                    const src = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&ecc=M&data=' + encodeURIComponent(payload);
+                    qrBox.classList.add('show');
+                    qrBox.innerHTML = `<img src="${src}" alt="QR de pago">
+                        <div class="text-sm font-semibold">${formatARS(total)}</div>
+                        <div class="text-xs muted mt-1">${PAY.alias}</div>
+                        <p class="text-xs faint mt-2">Abrí Modo, tu banco o la billetera → Transferir / escanear QR. Completá el monto de arriba.</p>`;
+                } else {
+                    qrBox.classList.remove('show');
+                    qrBox.innerHTML = '';
+                }
+            }
             window._checkoutMsg = '';
             if (!lines.length || !method) {
                 btn.classList.add('pointer-events-none', 'opacity-50');
