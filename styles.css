@@ -449,10 +449,11 @@
         }
         .pay-qr.show { display: block; }
         .pay-qr img {
-            width: 196px;
-            height: 196px;
+            width: min(280px, 78%);
+            height: auto;
+            aspect-ratio: 1;
             margin: 0 auto 10px;
-            border-radius: 16px;
+            border-radius: 12px;
             background: #fff;
-            padding: 10px;
+            padding: 8px;
         }
