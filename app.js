@@ -5,8 +5,40 @@ const WA = '541153195024';
             titular: 'Leandro Rodrigo Giordano',
             mpLink: 'https://link.mercadopago.com.ar/dyl3dprints',
             mpName: 'DyL 3D Prints',
-            qrImg: 'img/qr-personal-pay.jpg'
+            qrImg: 'img/qr-personal-pay.png',
+            emv: '00020101021127730018ar.com.personalpay0147fcE8ib1ALcP1gPGMAxQz54-jMkJV9hm8pnHhgqQ1UJKqY-05204739953030325802AR5925DyL3DPrintsLegisoluciones6004CABA6304EF3D'
         };
+
+        function crc16emv(str) {
+            let crc = 0xFFFF;
+            for (let i = 0; i < str.length; i++) {
+                crc ^= str.charCodeAt(i) << 8;
+                for (let b = 0; b < 8; b++) {
+                    crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) : (crc << 1);
+                    crc &= 0xFFFF;
+                }
+            }
+            return crc.toString(16).toUpperCase().padStart(4, '0');
+        }
+
+        function emvTlv(tag, value) {
+            const len = String(value.length).padStart(2, '0');
+            return tag + len + value;
+        }
+
+        function personalPayQr(amount) {
+            const raw = PAY.emv.replace(/6304[0-9A-F]{4}$/i, '');
+            let body = raw;
+            if (amount > 0) {
+                body = body.replace('010211', '010212');
+                const amt = Number(amount).toFixed(2);
+                if (!body.includes('54')) {
+                    body = body.replace('5303032', '5303032' + emvTlv('54', amt));
+                }
+            }
+            if (!/6304$/.test(body)) body += '6304';
+            return body + crc16emv(body);
+        }
         const TRANSFER_OFF = 0.05;
         let selectedPay = null;
         let catalogFilter = '';
@@ -307,11 +339,13 @@ const WA = '541153195024';
             const qrBox = document.getElementById('pay-qr');
             if (qrBox) {
                 if (selectedPay === 'billeteras' && lines.length) {
+                    const payload = personalPayQr(total);
+                    const src = 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&ecc=M&margin=8&data=' + encodeURIComponent(payload);
                     qrBox.classList.add('show');
-                    qrBox.innerHTML = `<img src="${PAY.qrImg}" alt="QR Personal Pay">
+                    qrBox.innerHTML = `<img src="${src}" alt="QR Personal Pay por ${formatARS(total)}">
                         <div class="text-sm font-semibold mt-3">${total ? formatARS(total) : 'Consultar'}</div>
-                        <div class="text-xs muted mt-1">Personal Pay · ${PAY.alias}</div>
-                        <p class="text-xs faint mt-2">Escaneá con Personal Pay u otra app que lea QR de cobro. El monto lo cargás vos: ${total ? formatARS(total) : 'el valor a consultar'}.</p>`;
+                        <div class="text-xs muted mt-1">Personal Pay · monto cerrado</div>
+                        <p class="text-xs faint mt-2">El QR ya sale con ${total ? formatARS(total) : 'el pedido'}. No hace falta tipear el importe. Si la app no lo toma, transferí al alias.</p>`;
                 } else {
                     qrBox.classList.remove('show');
                     qrBox.innerHTML = '';
