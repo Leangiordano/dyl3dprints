@@ -99,11 +99,15 @@
             letter-spacing: -0.025em;
         }
 
+        nav.site-nav {
+            z-index: 80;
+        }
         nav.site-nav, #mobile-menu, footer.site-footer {
             background: var(--nav);
             border-color: var(--line);
             backdrop-filter: blur(16px);
         }
+        #mobile-menu { position: relative; z-index: 80; }
 
         a.nav-link { color: var(--text-soft); transition: color .2s ease; }
         a.nav-link:hover { color: var(--accent); }
@@ -309,10 +313,10 @@
 
         .cart-drawer {
             position: fixed;
-            top: 0;
+            top: 5rem;
             right: 0;
             width: min(400px, 100vw);
-            height: 100vh;
+            height: calc(100vh - 5rem);
             z-index: 70;
             background: var(--bg-elev);
             border-left: 1px solid var(--line);
@@ -326,7 +330,10 @@
 
         .cart-backdrop {
             position: fixed;
-            inset: 0;
+            top: 5rem;
+            right: 0;
+            bottom: 0;
+            left: 0;
             z-index: 65;
             background: rgb(15 23 42 / .35);
             opacity: 0;
@@ -343,6 +350,19 @@
             height: 64px;
             object-fit: cover;
             border-radius: 14px;
+            background: var(--bg-muted);
+        }
+        .trash-btn {
+            width: 40px;
+            height: 40px;
+            border: 0;
+            border-radius: 14px;
+            background: transparent;
+            color: var(--text-faint);
+            cursor: pointer;
+        }
+        .trash-btn:hover {
+            color: #be123c;
             background: var(--bg-muted);
         }
 
@@ -394,16 +414,16 @@
     <nav class="site-nav sticky top-0 z-50 border-b">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center h-20">
-                <a href="#inicio" class="logo-btn inline-flex items-center" aria-label="DyL 3D Prints — inicio" onclick="closeProduct(event)">
+                <a href="#inicio" class="logo-btn inline-flex items-center" aria-label="DyL 3D Prints — inicio" onclick="closeCart(); closeProduct(event)">
                     <img src="logo.jpg" alt="DyL 3D Prints">
                 </a>
 
                 <div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
-                    <a href="#inicio" class="nav-link" onclick="closeProduct(event)">Inicio</a>
-                    <a href="#catalogo" class="nav-link" onclick="closeProduct(event)">Catálogo</a>
-                    <a href="#servicio" class="nav-link" onclick="closeProduct(event)">Servicio</a>
-                    <a href="#galeria" class="nav-link" onclick="closeProduct(event)">Galería</a>
-                    <a href="#contacto" class="nav-link" onclick="closeProduct(event)">Contacto</a>
+                    <a href="#inicio" class="nav-link" onclick="closeCart(); closeProduct(event)">Inicio</a>
+                    <a href="#catalogo" class="nav-link" onclick="closeCart(); closeProduct(event)">Catálogo</a>
+                    <a href="#servicio" class="nav-link" onclick="closeCart(); closeProduct(event)">Servicio</a>
+                    <a href="#galeria" class="nav-link" onclick="closeCart(); closeProduct(event)">Galería</a>
+                    <a href="#contacto" class="nav-link" onclick="closeCart(); closeProduct(event)">Contacto</a>
                 </div>
 
                 <div class="flex items-center gap-x-2">
@@ -424,11 +444,11 @@
 
     <div id="mobile-menu" class="hidden md:hidden border-b">
         <div class="px-6 py-4 flex flex-col gap-y-1 text-sm font-medium">
-            <a href="#inicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Inicio</a>
-            <a href="#catalogo" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Catálogo</a>
-            <a href="#servicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Servicio</a>
-            <a href="#galeria" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Galería</a>
-            <a href="#contacto" class="nav-link py-2" onclick="toggleMobileMenu(); closeProduct(event)">Contacto</a>
+            <a href="#inicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Inicio</a>
+            <a href="#catalogo" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Catálogo</a>
+            <a href="#servicio" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Servicio</a>
+            <a href="#galeria" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Galería</a>
+            <a href="#contacto" class="nav-link py-2" onclick="toggleMobileMenu(); closeCart(); closeProduct(event)">Contacto</a>
         </div>
     </div>
 
@@ -747,6 +767,7 @@
 
         function addOne(id) { setQty(id, qtyOf(id) + 1); }
         function subOne(id) { setQty(id, qtyOf(id) - 1); }
+        function removeItem(id) { setQty(id, 0); }
 
         function qtyControl(id) {
             const q = qtyOf(id);
@@ -793,7 +814,12 @@
                         <div class="flex-1 min-w-0">
                             <div class="font-medium truncate">${p.name}</div>
                             <div class="text-sm muted mt-0.5">${p.consult ? 'Consultar' : formatARS(p.priceNum)}</div>
-                            <div class="mt-2" data-cart-controls="${p.id}">${qtyControl(p.id)}</div>
+                            <div class="mt-2 flex items-center gap-1">
+                                <div data-cart-controls="${p.id}">${qtyControl(p.id)}</div>
+                                <button type="button" class="trash-btn" onclick="removeItem('${p.id}')" aria-label="Quitar del carrito">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="text-sm font-semibold pt-1">${p.consult ? 'Consultar' : formatARS(p.priceNum * qtyOf(p.id))}</div>
                     </div>`;
