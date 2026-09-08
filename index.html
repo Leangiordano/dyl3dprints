@@ -371,12 +371,14 @@
         }
         .pay-card.selected .pay-detail { display: block; }
         .copy-chip {
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
-            margin-top: 8px;
-            padding: 8px 12px;
-            border-radius: 12px;
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 14px;
             background: var(--bg-muted);
             color: var(--text);
             font-weight: 600;
@@ -624,7 +626,8 @@
         const PAY = {
             alias: 'lgiordano2.ppay',
             titular: 'Leandro Rodrigo Giordano',
-            mpLink: ''
+            mpLink: 'https://link.mercadopago.com.ar/dyl3dprints',
+            mpName: 'DyL 3D Prints'
         };
         const TRANSFER_OFF = 0.05;
         let selectedPay = null;
@@ -806,8 +809,8 @@
                 icon: 'fa-building-columns',
                 title: 'Transferencia bancaria',
                 subtitle: '5% de descuento. Solo alias.',
-                detail: () => `Titular: ${PAY.titular}<br>Alias: <strong>${PAY.alias}</strong><br>Descuento 5% por pagar con transferencia.
-                    <div><button type="button" class="copy-chip" onclick="copyText('${PAY.alias}')"><i class="fa-regular fa-copy"></i> Copiar alias</button></div>`
+                detail: () => `Titular: ${PAY.titular}<br>5% de descuento por transferencia.
+                    <button type="button" class="copy-chip" onclick="event.stopPropagation(); copyText('${PAY.alias}')"><span>${PAY.alias}</span><span><i class="fa-regular fa-copy"></i> Copiar</span></button>`
             },
             {
                 id: 'mercadopago',
@@ -815,8 +818,8 @@
                 title: 'Mercado Pago',
                 subtitle: 'Pago online, crédito, débito o dinero en cuenta.',
                 detail: () => PAY.mpLink
-                    ? `Te redirigimos a Mercado Pago para pagar el total.`
-                    : `Por ahora confirmamos el cobro por Mercado Pago desde WhatsApp. Elegí esta opción y tocá confirmar.`
+                    ? `El cobro entra en ${PAY.mpName || 'Mercado Pago'}. Te abrimos el link de pago del comercio.`
+                    : `Todavía no está el link del comercio. Cuando lo carguemos, esta opción abre el checkout de Mercado Pago de la cuenta registrada.`
             },
             {
                 id: 'tarjetas',
@@ -830,25 +833,25 @@
                 icon: 'fa-wallet',
                 title: 'Otras billeteras',
                 subtitle: 'Modo, Ualá, Naranja X, Personal Pay y similares.',
-                detail: () => `Transferí al alias <strong>${PAY.alias}</strong> desde tu billetera.
-                    <div><button type="button" class="copy-chip" onclick="copyText('${PAY.alias}')"><i class="fa-regular fa-copy"></i> Copiar alias</button></div>`
+                detail: () => `Transferí desde tu billetera al mismo alias.
+                    <button type="button" class="copy-chip" onclick="event.stopPropagation(); copyText('${PAY.alias}')"><span>${PAY.alias}</span><span><i class="fa-regular fa-copy"></i> Copiar</span></button>`
             }
         ];
 
         function renderPayMethods() {
             document.getElementById('pay-methods').innerHTML = PAY_METHODS.map(m => `
-                <button type="button" class="pay-card ${selectedPay === m.id ? 'selected' : ''}" onclick="selectPay('${m.id}')">
+                <div class="pay-card ${selectedPay === m.id ? 'selected' : ''}" onclick="selectPay('${m.id}')">
                     <div class="flex items-start gap-4">
                         <div class="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style="background:var(--bg-muted); color:var(--accent)">
                             <i class="fa-solid ${m.icon}"></i>
                         </div>
-                        <div>
+                        <div class="min-w-0 flex-1">
                             <div class="font-semibold">${m.title}</div>
                             <div class="text-sm muted mt-1">${m.subtitle}</div>
                             <div class="pay-detail">${m.detail()}</div>
                         </div>
                     </div>
-                </button>
+                </div>
             `).join('');
         }
 
@@ -894,15 +897,26 @@
                 return;
             }
             btn.classList.remove('pointer-events-none', 'opacity-50');
-            hint.textContent = transferSelected()
-                ? 'Total con 5% off. Confirmá y te mandamos el alias por WhatsApp.'
-                : 'Te abrimos WhatsApp con el pedido y el medio elegido.';
+            if (transferSelected()) {
+                hint.textContent = '';
+            } else if (selectedPay === 'mercadopago' && PAY.mpLink) {
+                hint.textContent = 'Vas a pagar en el Mercado Pago del comercio.';
+            } else {
+                hint.textContent = 'Te abrimos WhatsApp con el pedido y el medio elegido.';
+            }
             const list = lines.map(p => `• ${p.name} x${qtyOf(p.id)} — ${formatARS(p.priceNum * qtyOf(p.id))}`).join('\n');
             const extra = transferSelected()
                 ? `\nDescuento transferencia 5%: − ${formatARS(subtotal - total)}\nTotal: ${formatARS(total)}\nAlias: ${PAY.alias}`
                 : `\nTotal: ${formatARS(total)}`;
             const msg = `Hola DyL, quiero pagar este pedido:\n\n${list}${extra}\nMedio de pago: ${method.title}`;
-            btn.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
+            if ((selectedPay === 'mercadopago' || selectedPay === 'tarjetas') && PAY.mpLink) {
+                btn.href = PAY.mpLink;
+                btn.innerHTML = '<i class="fa-solid fa-lock"></i> Pagar con Mercado Pago';
+            } else {
+                btn.href = 'https://wa.me/' + WA + '?text=' + encodeURIComponent(msg);
+                btn.innerHTML = '<i class="fa-brands fa-whatsapp text-lg"></i> Confirmar por WhatsApp';
+            }
+            hint.style.display = hint.textContent ? '' : 'none';
         }
 
         function goCheckout() {
