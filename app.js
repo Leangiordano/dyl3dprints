@@ -107,6 +107,25 @@ const WA = '541153195024';
                 ]
             },
             {
+                id: 'llavero-tateti',
+                name: 'Llavero TATETI',
+                price: 'Consultar',
+                priceNum: 0,
+                consult: true,
+                categories: ['accesorios'],
+                badge: 'Accesorios',
+                badgeClass: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+                short: 'Llavero TATETI para chicos y no tanto: un juego de bolsillo para cualquier rato del día.',
+                long: 'Llavero TATETI impreso en 3D. Para los más chicos y no tanto: un tablero de bolsillo para entretenerte en cualquier momento del día. Fichas X y O reversibles. Consultá color.',
+                images: [
+                    'img/llavero-tateti-1.jpg',
+                    'img/llavero-tateti-2.jpg',
+                    'img/llavero-tateti-3.jpg',
+                    'img/llavero-tateti-4.jpg',
+                    'img/llavero-tateti-5.jpg'
+                ]
+            },
+            {
                 id: 'organizadores',
                 name: 'Organizadores modulares',
                 price: 'Desde $8.500',
