@@ -126,6 +126,30 @@ const WA = '541153195024';
                 ]
             },
             {
+                id: 'porta-panchos-salchicha',
+                name: 'Perro salchicha porta panchos',
+                price: 'Consultar',
+                priceNum: 0,
+                consult: true,
+                categories: ['accesorios', 'adornos'],
+                badge: 'Clásico',
+                badgeClass: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300',
+                short: 'El clásico porta panchos: un salchicha que alegra la mesa, ideal para fiestas infantiles.',
+                long: 'Perro salchicha porta panchos impreso en 3D. Una idea original para alegrar el momento de la comida; entra un pancho con papas. Ideal para fiestas infantiles y mesas temáticas. Consultá color.',
+                images: [
+                    'img/porta-panchos-salchicha-1.jpg',
+                    'img/porta-panchos-salchicha-2.jpg',
+                    'img/porta-panchos-salchicha-3.jpg',
+                    'img/porta-panchos-salchicha-4.jpg',
+                    'img/porta-panchos-salchicha-5.jpg',
+                    'img/porta-panchos-salchicha-6.jpg',
+                    'img/porta-panchos-salchicha-7.jpg',
+                    'img/porta-panchos-salchicha-8.jpg',
+                    'img/porta-panchos-salchicha-9.jpg',
+                    'img/porta-panchos-salchicha-10.jpg'
+                ]
+            },
+            {
                 id: 'organizadores',
                 name: 'Organizadores modulares',
                 price: 'Desde $8.500',
