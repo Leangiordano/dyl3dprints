@@ -89,17 +89,27 @@
     </section>
 
     <section id="catalogo" class="max-w-7xl mx-auto px-6 py-16 border-t line">
-        <div class="flex items-end justify-between mb-10">
+        <div class="flex items-end justify-between gap-4 mb-6">
             <div>
                 <h2 class="section-header tracking-tighter">Catálogo</h2>
                 <p class="muted mt-2" id="catalog-sub">Algunos de nuestros productos más populares</p>
             </div>
-            <a href="#contacto" class="hidden md:flex text-sm font-semibold items-center gap-x-2" style="color:var(--text)">
-                Ver todo <i class="fa-solid fa-arrow-right"></i>
-            </a>
+            <div class="flex items-center gap-3 shrink-0">
+                <div class="view-toggle" id="view-toggle" role="group" aria-label="Vista del catálogo">
+                    <button type="button" id="view-grid" onclick="setCatalogView('grid')" title="Cuadrícula" aria-label="Cuadrícula">
+                        <i class="fa-solid fa-table-cells"></i>
+                    </button>
+                    <button type="button" id="view-list" onclick="setCatalogView('list')" title="Lista" aria-label="Lista">
+                        <i class="fa-solid fa-list-ul"></i>
+                    </button>
+                </div>
+                <a href="#catalogo" id="catalog-all-link" class="hidden md:flex text-sm font-semibold items-center gap-x-2" style="color:var(--text)">
+                    Ver catálogo <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
         </div>
 
-        <div id="catalog-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+        <div id="catalog-grid" class="catalog-grid view-grid"></div>
 
         <div class="mt-8 text-center">
             <p class="text-sm faint">¿No encontrás lo que buscás? <a href="#contacto" class="font-medium hover:underline" style="color:var(--text)">Escribinos</a> y lo hacemos.</p>

@@ -577,53 +577,72 @@ const WA = '541153195024';
             return m ? m[1] : '';
         }
 
+        const FEATURED_IDS = ['corazon-mama', 'soportes-celular', 'porta-panchos-salchicha', 'bob-patricio-cocina'];
+        let catalogView = localStorage.getItem('dyl-catalog-view') === 'list' ? 'list' : 'grid';
+
+        function setCatalogView(mode) {
+            catalogView = mode === 'list' ? 'list' : 'grid';
+            localStorage.setItem('dyl-catalog-view', catalogView);
+            renderCatalog();
+        }
+
+        function catalogCard(p, mode) {
+            const img = p.images[0]
+                ? `<button type="button" class="shot" onclick="openLightbox('${p.id}', 0)"><img src="${p.images[0]}" alt="${p.name}"></button>`
+                : `<a href="#producto/${p.id}" class="shot placeholder"></a>`;
+            if (mode === 'list') {
+                return `<article class="cat-row">
+                    ${img}
+                    <div class="info">
+                        <h3><a class="product-title-link" href="#producto/${p.id}">${p.name}</a></h3>
+                        <div class="price">${p.price}</div>
+                    </div>
+                    <div data-cart-controls="${p.id}">${qtyControl(p.id)}</div>
+                </article>`;
+            }
+            return `<article class="cat-card">
+                ${img}
+                <div class="meta">
+                    <h3><a class="product-title-link" href="#producto/${p.id}">${p.name}</a></h3>
+                    <div class="row">
+                        <span class="price">${p.price}</span>
+                        <div data-cart-controls="${p.id}">${qtyControl(p.id)}</div>
+                    </div>
+                </div>
+            </article>`;
+        }
+
         function renderCatalog() {
             const grid = document.getElementById('catalog-grid');
+            if (!grid) return;
             catalogFilter = catalogFilterFromHash();
+            const browsing = location.hash.startsWith('#catalogo');
             const cat = CATEGORIES.find(c => c.id === catalogFilter);
-            const list = catalogFilter
+            let list = catalogFilter
                 ? PRODUCTS.filter(p => (p.categories || []).includes(catalogFilter))
                 : PRODUCTS;
             const sub = document.getElementById('catalog-sub');
-            if (sub) sub.textContent = cat ? cat.name : 'Algunos de nuestros productos más populares';
+            const allLink = document.getElementById('catalog-all-link');
+            const toggle = document.getElementById('view-toggle');
+            if (!browsing) {
+                list = FEATURED_IDS.map(id => productById(id)).filter(Boolean);
+                if (sub) sub.textContent = 'Algunos de nuestros productos más populares';
+                if (allLink) allLink.classList.remove('hidden-link');
+                if (toggle) toggle.style.display = 'none';
+            } else {
+                if (sub) sub.textContent = cat ? cat.name : 'Todos los productos';
+                if (allLink) allLink.classList.add('hidden-link');
+                if (toggle) toggle.style.display = '';
+            }
+            const view = browsing ? catalogView : 'grid';
+            grid.className = 'catalog-grid view-' + view;
+            document.getElementById('view-grid')?.classList.toggle('on', catalogView === 'grid');
+            document.getElementById('view-list')?.classList.toggle('on', catalogView === 'list');
             if (!list.length) {
-                grid.innerHTML = `<p class="muted col-span-full py-10 text-center">Todavía no hay piezas en esta categoría. <a href="#contacto" class="font-medium hover:underline" style="color:var(--text)">Escribinos</a> y la hacemos.</p>`;
+                grid.innerHTML = `<p class="muted py-10 text-center">Todavía no hay piezas en esta categoría. <a href="#contacto" class="font-medium hover:underline" style="color:var(--text)">Escribinos</a> y la hacemos.</p>`;
                 return;
             }
-            grid.innerHTML = list.map(p => {
-                const media = p.images.length
-                    ? `<button type="button" class="catalog-img-wrap aspect-video rounded-2xl mb-5 overflow-hidden w-full" onclick="openLightbox('${p.id}', 0)">
-                            <img class="product-photo" src="${p.images[0]}" alt="${p.name}">
-                       </button>`
-                    : `<a href="#producto/${p.id}" class="aspect-video placeholder rounded-2xl mb-5 flex items-center justify-center">
-                            <i class="fa-solid ${p.icon} text-6xl"></i>
-                       </a>`;
-                const thumbs = p.images.length
-                    ? `<div class="grid grid-cols-4 gap-2 mb-5">
-                            ${p.images.slice(0, 4).map((src, i) =>
-                                `<img class="thumb ${i === 0 ? 'active' : ''}" src="${src}" alt="" onclick="openLightbox('${p.id}', ${i})">`
-                            ).join('')}
-                       </div>`
-                    : '';
-                const badge = p.badge
-                    ? `<span class="shrink-0 text-xs px-3 py-1 rounded-2xl font-medium ${p.badgeClass}">${p.badge}</span>`
-                    : '';
-                return `<article class="card rounded-3xl p-6">
-                    ${media}
-                    ${thumbs}
-                    <div class="flex items-start justify-between gap-3">
-                        <h3 class="font-semibold text-xl">
-                            <a class="product-title-link" href="#producto/${p.id}">${p.name}</a>
-                        </h3>
-                        ${badge}
-                    </div>
-                    <p class="muted text-sm mt-2 mb-4">${p.short}</p>
-                    <div class="flex items-center justify-between gap-3">
-                        <span class="font-semibold">${p.price}</span>
-                        <div data-cart-controls="${p.id}">${qtyControl(p.id)}</div>
-                    </div>
-                </article>`;
-            }).join('');
+            grid.innerHTML = list.map(p => catalogCard(p, view)).join('');
         }
 
         let galleryIndex = 0;
@@ -777,9 +796,11 @@ const WA = '541153195024';
             if (p) openProduct(p.id);
             else {
                 document.body.classList.remove('product-open');
-                document.title = 'DyL 3D Prints • Impresión 3D';
+                document.title = location.hash.startsWith('#catalogo')
+                    ? 'Catálogo • DyL 3D Prints'
+                    : 'DyL 3D Prints • Impresión 3D';
+                renderCatalog();
                 if (location.hash.startsWith('#catalogo')) {
-                    renderCatalog();
                     const el = document.getElementById('catalogo');
                     if (el) el.scrollIntoView();
                 }
