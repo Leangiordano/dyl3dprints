@@ -150,6 +150,33 @@ const WA = '541153195024';
                 ]
             },
             {
+                id: 'bob-patricio-cocina',
+                name: 'Bob Esponja y Patricio para cocina',
+                price: 'Consultar',
+                priceNum: 0,
+                consult: true,
+                categories: ['adornos'],
+                badge: 'Cocina',
+                badgeClass: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+                short: 'Portaesponja Bob Esponja y porta virulana Patricio: el dúo para alegrar la pileta.',
+                long: 'Set de adornos de cocina impresos en 3D: Bob Esponja sostiene la esponja y Patricio guarda la virulana. Ideales para la mesada. Se pueden pedir juntos o por separado. Consultá colores.',
+                images: [
+                    'img/bob-patricio-cocina-1.jpg',
+                    'img/bob-patricio-cocina-2.jpg',
+                    'img/bob-patricio-cocina-3.jpg',
+                    'img/bob-patricio-cocina-4.jpg',
+                    'img/bob-patricio-cocina-5.jpg',
+                    'img/bob-patricio-cocina-6.jpg',
+                    'img/bob-patricio-cocina-7.jpg',
+                    'img/bob-patricio-cocina-8.jpg',
+                    'img/bob-patricio-cocina-9.jpg',
+                    'img/bob-patricio-cocina-10.jpg',
+                    'img/bob-patricio-cocina-11.jpg',
+                    'img/bob-patricio-cocina-12.jpg',
+                    'img/bob-patricio-cocina-13.jpg'
+                ]
+            },
+            {
                 id: 'organizadores',
                 name: 'Organizadores modulares',
                 price: 'Desde $8.500',
