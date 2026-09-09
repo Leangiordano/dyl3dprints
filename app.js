@@ -164,16 +164,25 @@ const WA = '541153195024';
             },
             {
                 id: 'soportes-celular',
-                name: 'Soportes para celular',
-                price: 'Desde $4.200',
-                priceNum: 4200,
-                badge: '',
-                badgeClass: '',
-                short: 'Diseños ergonómicos y resistentes.',
-                long: 'Soportes impresos en 3D, pensados para mesa o escritorio. Hay varios ángulos y estilos; si tenés un modelo de celular o un uso puntual (auto, cocina, streaming), lo adaptamos.',
+                name: 'Soporte para celular personalizable',
+                price: 'Consultar',
+                priceNum: 0,
+                consult: true,
+                badge: 'Personalizable',
+                badgeClass: 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300',
+                short: 'Soporte plegable con nombre en la solapa y combinación de colores a elección.',
+                long: 'Soporte para celular impreso en 3D, plegable. Se personaliza el nombre en la solapa de apoyo y la combinación de colores (un tono o dos). Sirve vertical y horizontal. Indicá el nombre y los colores al pedir.',
                 categories: ['soporte-celular', 'accesorios'],
-                icon: 'fa-mobile-screen',
-                images: []
+                images: [
+                    'img/soporte-celular-1.jpg',
+                    'img/soporte-celular-2.jpg',
+                    'img/soporte-celular-3.jpg',
+                    'img/soporte-celular-4.jpg',
+                    'img/soporte-celular-5.jpg',
+                    'img/soporte-celular-6.jpg',
+                    'img/soporte-celular-7.jpg',
+                    'img/soporte-celular-8.jpg'
+                ]
             }
         ];
 
