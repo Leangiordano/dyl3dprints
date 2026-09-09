@@ -146,7 +146,18 @@
             <h2 class="section-header tracking-tighter">Galería</h2>
             <p class="muted">Algunos trabajos que realizamos</p>
         </div>
-        <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+        <div class="gallery-carousel" id="gallery-carousel">
+            <div class="gallery-viewport">
+                <div class="gallery-track" id="gallery-track"></div>
+            </div>
+            <button type="button" class="gallery-nav prev" onclick="galleryStep(-1)" aria-label="Anterior">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button type="button" class="gallery-nav next" onclick="galleryStep(1)" aria-label="Siguiente">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <div class="gallery-dots" id="gallery-dots"></div>
+        </div>
     </section>
 
     <section id="contacto" class="max-w-7xl mx-auto px-6 py-16 border-t line">

@@ -599,15 +599,64 @@ const WA = '541153195024';
             }).join('');
         }
 
+        let galleryIndex = 0;
+        let galleryTimer = null;
+        let gallerySlides = [];
+
+        function buildGallerySlides() {
+            const slides = [];
+            PRODUCTS.forEach(p => {
+                if (!p.images || !p.images.length) return;
+                slides.push({ id: p.id, src: p.images[0], name: p.name, i: 0 });
+                if (p.images.length > 2) {
+                    const mid = Math.min(2, p.images.length - 1);
+                    slides.push({ id: p.id, src: p.images[mid], name: p.name, i: mid });
+                }
+            });
+            return slides;
+        }
+
         function renderGallery() {
-            const p = productById('corazon-mama');
-            const grid = document.getElementById('gallery-grid');
-            const shots = [0, 3, 4, 5];
-            grid.innerHTML = shots.map(i =>
-                `<button type="button" class="aspect-square rounded-3xl overflow-hidden" onclick="openLightbox('corazon-mama', ${i})">
-                    <img class="gallery-photo" src="${p.images[i]}" alt="${p.name}">
-                 </button>`
+            gallerySlides = buildGallerySlides();
+            const track = document.getElementById('gallery-track');
+            const dots = document.getElementById('gallery-dots');
+            if (!track || !gallerySlides.length) return;
+            track.innerHTML = gallerySlides.map((s, n) => `
+                <button type="button" class="gallery-slide ${n === 0 ? 'active' : ''}" onclick="openLightbox('${s.id}', ${s.i})">
+                    <img src="${s.src}" alt="${s.name}">
+                    <div class="cap"><strong>${s.name}</strong><span>Trabajo DyL</span></div>
+                </button>`).join('');
+            dots.innerHTML = gallerySlides.map((_, n) =>
+                `<button type="button" class="${n === 0 ? 'on' : ''}" onclick="galleryGo(${n})" aria-label="Foto ${n + 1}"></button>`
             ).join('');
+            galleryIndex = 0;
+            startGallery();
+            const car = document.getElementById('gallery-carousel');
+            car.onmouseenter = stopGallery;
+            car.onmouseleave = startGallery;
+        }
+
+        function galleryGo(n) {
+            if (!gallerySlides.length) return;
+            galleryIndex = (n + gallerySlides.length) % gallerySlides.length;
+            document.querySelectorAll('.gallery-slide').forEach((el, i) => el.classList.toggle('active', i === galleryIndex));
+            document.querySelectorAll('.gallery-dots button').forEach((el, i) => el.classList.toggle('on', i === galleryIndex));
+        }
+
+        function galleryStep(dir) {
+            galleryGo(galleryIndex + dir);
+            startGallery();
+        }
+
+        function startGallery() {
+            stopGallery();
+            if (gallerySlides.length < 2) return;
+            galleryTimer = setInterval(() => galleryGo(galleryIndex + 1), 4200);
+        }
+
+        function stopGallery() {
+            if (galleryTimer) clearInterval(galleryTimer);
+            galleryTimer = null;
         }
 
         function renderProductPage(p) {
