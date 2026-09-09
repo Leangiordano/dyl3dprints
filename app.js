@@ -331,14 +331,14 @@ const WA = '541153195024';
                 icon: 'fa-handshake',
                 title: 'Mercado Pago',
                 subtitle: 'Pago online, crédito, débito o dinero en cuenta.',
-                detail: () => `El cobro entra en ${PAY.mpName || 'Mercado Pago'}. El botón del resumen abre el checkout con el mismo total del carrito.`
+                detail: () => ''
             },
             {
                 id: 'tarjetas',
                 icon: 'fa-credit-card',
                 title: 'Tarjeta de crédito o débito',
                 subtitle: 'Visa, Mastercard y cabal a través de Mercado Pago.',
-                detail: () => `Visa, Mastercard y débito en el checkout de ${PAY.mpName || 'Mercado Pago'}, con el total del pedido ya cargado.`
+                detail: () => ''
             },
             {
                 id: 'billeteras',
@@ -450,8 +450,6 @@ const WA = '541153195024';
                         <div class="text-sm font-semibold mt-3">${total ? formatARS(total) : 'Consultar'}</div>
                         <div class="text-xs muted mt-1">DyL 3D Prints · Caja Web</div>
                         <p class="text-xs faint mt-2">QR oficial de Mercado Pago. Escaneá con MP, MODO, banco u otra billetera. El total a pagar es <strong>${total ? formatARS(total) : 'a consultar'}</strong>.</p>`;
-                } else if ((selectedPay === 'mercadopago' || selectedPay === 'tarjetas') && total > 0) {
-                    renderMpQr(qrBox, total);
                 } else {
                     qrBox.classList.remove('show');
                     qrBox.innerHTML = '';
