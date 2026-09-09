@@ -165,9 +165,8 @@ const WA = '541153195024';
             {
                 id: 'soportes-celular',
                 name: 'Soporte para celular personalizable',
-                price: 'Consultar',
-                priceNum: 0,
-                consult: true,
+                price: '$3.500',
+                priceNum: 3500,
                 badge: 'Personalizable',
                 badgeClass: 'bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300',
                 short: 'Soporte plegable con nombre en la solapa y combinación de colores a elección.',
