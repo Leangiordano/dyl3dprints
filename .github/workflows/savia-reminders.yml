@@ -1,0 +1,13 @@
+name: Savia water reminders
+
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch Savia reminders
+        run: curl -fsS --max-time 30 "https://pupi-app-fitness.grok.me/api/cron/reminders" || true
