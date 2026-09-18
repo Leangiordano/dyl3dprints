@@ -48,6 +48,9 @@ const WA = '541153195024';
             { id: 'munecos', name: 'Muñecos' },
             { id: 'soporte-celular', name: 'Soporte celular' },
             { id: 'adornos', name: 'Adornos' },
+            { id: 'decoracion', name: 'Decoración' },
+            { id: 'hogar', name: 'Hogar' },
+            { id: 'regalos', name: 'Regalos' },
             { id: 'estilo-crochet', name: 'Estilo crochet' },
             { id: 'estilo-voronoi', name: 'Estilo Voronoi' },
             { id: 'accesorios', name: 'Accesorios' }
@@ -188,6 +191,23 @@ const WA = '541153195024';
                 long: 'Cutter impreso en 3D con mango ergonómico para hojas estándar de 18 mm. El color se personaliza a gusto. Liviano, cómodo para el taller o el escritorio. La hoja no está incluida.',
                 images: [
                     'img/cutter-ergonomico-18mm.jpg'
+                ]
+            },
+            {
+                id: 'cuadro-rompecabezas-familia',
+                name: 'Cuadro rompecabezas 3D personalizable',
+                price: '$28.000',
+                priceNum: 28000,
+                categories: ['decoracion', 'hogar', 'regalos', 'adornos'],
+                badge: 'Personalizable',
+                badgeClass: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300',
+                short: 'Cuadro familiar con piezas de rompecabezas y nombres a medida.',
+                long: 'Un cuadro para la familia: marco impreso en 3D con piezas de rompecabezas que se unen en un corazón. Cada pieza lleva un nombre; el título y los colores se personalizan. Se cuelga o se apoya. Un recuerdo que queda en casa y también es un regalo con sentido.',
+                images: [
+                    'img/cuadro-rompecabezas-1.jpg',
+                    'img/cuadro-rompecabezas-2.jpg',
+                    'img/cuadro-rompecabezas-3.jpg',
+                    'img/cuadro-rompecabezas-4.jpg'
                 ]
             },
             {
