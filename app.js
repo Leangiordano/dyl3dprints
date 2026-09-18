@@ -188,7 +188,7 @@ const WA = '541153195024';
                 badge: 'Nuevo',
                 badgeClass: 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300',
                 short: 'Mango ergonómico para hoja de 18 mm. Color a elección.',
-                long: 'Cutter impreso en 3D con mango ergonómico para hojas estándar de 18 mm. El color se personaliza a gusto. Liviano, cómodo para el taller o el escritorio. La hoja no está incluida.',
+                long: 'Cutter impreso en 3D con mango ergonómico para hojas estándar de 18 mm. El color se personaliza a gusto. Liviano, cómodo para el taller o el escritorio. La hoja viene incluida.',
                 images: [
                     'img/cutter-ergonomico-18mm.jpg'
                 ]
