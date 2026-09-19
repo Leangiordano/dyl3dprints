@@ -188,9 +188,9 @@ const WA = '541153195024';
                 badge: 'Nuevo',
                 badgeClass: 'bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300',
                 short: 'Mango ergonómico para hoja de 18 mm. Color a elección.',
-                long: 'Cutter impreso en 3D con mango ergonómico para hojas estándar de 18 mm. El color se personaliza a gusto. Liviano, cómodo para el taller o el escritorio. La hoja viene incluida.',
+                long: 'Cutter impreso en 3D con mango ergonómico para hojas estándar de 18 mm. El color se personaliza a gusto. Liviano, cómodo para el taller o el escritorio. La hoja no está incluida.',
                 images: [
-                    'img/cutter-ergonomico-18mm.jpg'
+                    'img/6PPZB.jpg'
                 ]
             },
             {
@@ -204,10 +204,10 @@ const WA = '541153195024';
                 short: 'Cuadro familiar con piezas de rompecabezas y nombres a medida.',
                 long: 'Un cuadro para la familia: marco impreso en 3D con piezas de rompecabezas que se unen en un corazón. Cada pieza lleva un nombre; el título y los colores se personalizan. Se cuelga o se apoya. Un recuerdo que queda en casa y también es un regalo con sentido.',
                 images: [
-                    'img/cuadro-rompecabezas-1.jpg',
-                    'img/cuadro-rompecabezas-2.jpg',
-                    'img/cuadro-rompecabezas-3.jpg',
-                    'img/cuadro-rompecabezas-4.jpg'
+                    'img/cvqZg.jpg',
+                    'img/cnfLx.jpg',
+                    'img/4V2Qn.jpg',
+                    'img/d2LMl.jpg'
                 ]
             },
             {
